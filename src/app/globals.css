@@ -1,26 +1,255 @@
 @import "tailwindcss";
 
+/* ── Tokens ─────────────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  color-scheme: light dark;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --bg: #f6f3ec;
+  --surface: #fffdf8;
+  --surface-2: #f0ece3;
+  --ink: #1e1b16;
+  --muted: #6f6858;
+  --faint: #a49c8b;
+  --border: #e4ded1;
+  --accent: #b7502a;
+  --accent-ink: #ffffff;
+  --accent-soft: #f6e3d9;
+  --danger: #b42318;
+  --ok: #2f7a4f;
+
+  --cat-idea: #b8860b;
+  --cat-task: #2563eb;
+  --cat-project: #7c3aed;
+  --cat-reflection: #0f766e;
+  --cat-journal: #db2777;
+  --cat-reference: #475569;
+  --cat-other: #8a8578;
+
+  --radius: 14px;
+  --shadow: 0 1px 2px rgb(30 27 22 / 0.05), 0 8px 24px -12px rgb(30 27 22 / 0.18);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #14120e;
+    --surface: #1d1a15;
+    --surface-2: #26221b;
+    --ink: #ece6d9;
+    --muted: #a69e8d;
+    --faint: #6f6858;
+    --border: #2f2a22;
+    --accent: #e0703f;
+    --accent-ink: #1a0f08;
+    --accent-soft: #3a2418;
+    --danger: #f97066;
+    --ok: #5cc48a;
+
+    --cat-idea: #e2b23c;
+    --cat-task: #60a5fa;
+    --cat-project: #a78bfa;
+    --cat-reflection: #2dd4bf;
+    --cat-journal: #f472b6;
+    --cat-reference: #94a3b8;
+    --cat-other: #9c9483;
+
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --radius-card: var(--radius);
+  --shadow-card: var(--shadow);
+}
+
+/* ── Base ───────────────────────────────────────────────────────────────── */
+html {
+  background: var(--bg);
+}
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+::selection {
+  background: var(--accent-soft);
+}
+a {
+  text-underline-offset: 3px;
+}
+
+/* ── Composants utilitaires ──────────────────────────────────────────────── */
+/* Dans @layer components pour que les utilitaires Tailwind (hidden, md:…)
+   gardent la priorité sur ces règles. */
+@layer components {
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.chip:hover {
+  color: var(--ink);
+  border-color: var(--faint);
+}
+.chip[data-active="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  transition: transform 0.08s, background 0.15s, border-color 0.15s, opacity 0.15s;
+  cursor: pointer;
+}
+.btn:hover {
+  border-color: var(--faint);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.btn-primary:hover {
+  filter: brightness(1.05);
+  border-color: var(--accent);
+}
+.btn-danger {
+  color: var(--danger);
+}
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+}
+.btn-ghost:hover {
+  background: var(--surface-2);
+  border-color: transparent;
+  color: var(--ink);
+}
+.input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.6rem 0.8rem;
+  color: var(--ink);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.input::placeholder {
+  color: var(--faint);
+}
+.label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+/* Pastille de catégorie : la couleur vient d'une variable par catégorie. */
+.cat {
+  --c: var(--cat-other);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--c);
+}
+.cat::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--c);
+}
+.cat-idea { --c: var(--cat-idea); }
+.cat-task { --c: var(--cat-task); }
+.cat-project { --c: var(--cat-project); }
+.cat-reflection { --c: var(--cat-reflection); }
+.cat-journal { --c: var(--cat-journal); }
+.cat-reference { --c: var(--cat-reference); }
+.cat-other { --c: var(--cat-other); }
+} /* @layer components */
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.pulse {
+  animation: pulse-soft 1.4s ease-in-out infinite;
+}
+@keyframes rec-ring {
+  0% { box-shadow: 0 0 0 0 rgb(183 80 42 / 0.45); }
+  100% { box-shadow: 0 0 0 18px rgb(183 80 42 / 0); }
+}
+.recording {
+  animation: rec-ring 1.2s ease-out infinite;
+}
+
+.prose-note {
+  white-space: pre-wrap;
+  line-height: 1.65;
+  font-size: 1.02rem;
+}
+
+/* Safe areas iOS (PWA plein écran) */
+.pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
 }
