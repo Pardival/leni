@@ -43,10 +43,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const groups = groupByDay(notes);
   const processing = notes.some((n) => n.status === "processing");
 
-  const hour = new Date().getHours();
+  const hour = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: config.timeZone }).format(new Date()));
   const greetingKey = hour < 12 ? "greetingMorning" : hour < 18 ? "greetingDay" : "greetingEvening";
   const greeting = config.userName ? format(m.notes[greetingKey], { name: config.userName }) : m.notes.title;
-  const today = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long" }).format(new Date());
+  const today = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", timeZone: config.timeZone }).format(new Date());
 
   return (
     <div className="space-y-7">
@@ -110,7 +110,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             {groups.map(([day, items]) => (
               <div key={day} className="space-y-2">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-muted first-letter:uppercase">
-                  {dayLabel(day, locale, m.common)}
+                  {dayLabel(day, locale, m.common, config.timeZone)}
                 </h3>
                 <div className="space-y-2">
                   {items.map((n) => (
@@ -129,7 +129,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 function groupByDay(notes: Note[]): [string, Note[]][] {
   const map = new Map<string, Note[]>();
   for (const n of notes) {
-    const k = dayKey(n.capturedAt);
+    const k = dayKey(n.capturedAt, config.timeZone);
     if (!map.has(k)) map.set(k, []);
     map.get(k)!.push(n);
   }

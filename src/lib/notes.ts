@@ -1,6 +1,8 @@
 import { and, desc, eq, like, or, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { getDb } from "@/db";
+import { config } from "./config";
+import { dayKey } from "./format";
 import { deleteAllAudio, deleteAudio } from "./storage";
 import { categories } from "@/db/schema";
 import { KINDS, notes, type Kind, type Note, type Source } from "@/db/schema";
@@ -333,8 +335,7 @@ export async function getStreak(): Promise<number> {
 }
 
 function localDayKey(iso: string): string {
-  const d = new Date(iso);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return dayKey(iso, config.timeZone);
 }
 
 /**

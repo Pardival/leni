@@ -53,7 +53,7 @@ export async function enrich(input: EnrichInput): Promise<EnrichResult> {
 
   const capturedAtHuman = new Intl.DateTimeFormat("en-GB", {
     weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
-    timeZone: process.env.TZ || Intl.DateTimeFormat().resolvedOptions().timeZone,
+    timeZone: config.timeZone,
   }).format(new Date(input.capturedAt));
 
   const userPayload = {

@@ -16,7 +16,20 @@ export const config = {
     authToken: process.env.DATABASE_AUTH_TOKEN?.trim() || undefined,
   },
   audioDir: process.env.AUDIO_DIR?.trim() || "./data/audio",
+  /** Fuseau de l'utilisateur : dates "humaines", regroupement par jour, série. */
+  timeZone: validTimeZone(process.env.LENI_TIMEZONE) ?? "Europe/Paris",
 } as const;
+
+function validTimeZone(tz: string | undefined): string | null {
+  const v = tz?.trim();
+  if (!v) return null;
+  try {
+    new Intl.DateTimeFormat("en-GB", { timeZone: v });
+    return v;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Dossier audio en chemin absolu. Concaténation volontairement sans `path.resolve`
