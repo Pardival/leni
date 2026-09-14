@@ -1,0 +1,1 @@
+ALTER TABLE `notes` ADD `done_action_items` text DEFAULT '[]' NOT NULL;

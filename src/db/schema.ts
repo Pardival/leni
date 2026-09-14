@@ -86,6 +86,11 @@ export const notes = sqliteTable(
       .$type<string[]>()
       .notNull()
       .default(sql`'[]'`),
+    /** Sous-ensemble de `actionItems` cochées comme faites. */
+    doneActionItems: text("done_action_items", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
     entities: text("entities", { mode: "json" })
       .$type<Entities>()
       .notNull()

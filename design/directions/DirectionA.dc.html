@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Manrope:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Manrope', system-ui, sans-serif; }
+    a { color: #9a4a22; } a:hover { color: #7a3616; }
+    @keyframes ink { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .ink { animation: ink 0.7s ease-out both; }
+    .ink-2 { animation-delay: 0.1s; } .ink-3 { animation-delay: 0.2s; } .ink-4 { animation-delay: 0.3s; }
+  </style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #f4efe4; color: #1c1915; display: flex; flex-direction: column;">
+
+  <!-- En-tête éditorial -->
+  <div style="display: flex; flex-direction: column; gap: 10px; padding: 68px 28px 0 28px;">
+    <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #8a7f6c;">Lundi 14 septembre</div>
+    <div class="ink" style="font-family: 'Newsreader', Georgia, serif; font-size: 40px; font-weight: 400; line-height: 1.05; letter-spacing: -0.01em;">Trois notes<br><em style="color: #9a4a22;">aujourd'hui.</em></div>
+  </div>
+
+  <!-- Capture : champ de texte élégant -->
+  <div style="display: flex; align-items: center; gap: 12px; margin: 28px 28px 0 28px; padding: 14px 16px; border-radius: 14px; background: #fffdf8; border: 1px solid #e3dccb; box-shadow: 0 10px 30px -18px rgba(28,25,21,0.35);">
+    <div style="flex-grow: 1; font-size: 15px; color: #8a7f6c;">Qu'as-tu en tête ?</div>
+    <div style="width: 40px; height: 40px; border-radius: 12px; background: #1c1915; display: flex; align-items: center; justify-content: center;">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#f4efe4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+    </div>
+  </div>
+
+  <!-- Filtres discrets -->
+  <div style="display: flex; gap: 18px; padding: 26px 28px 0 28px; font-size: 13px; font-weight: 600;">
+    <div style="color: #1c1915; border-bottom: 2px solid #9a4a22; padding-bottom: 6px;">Tout</div>
+    <div style="color: #8a7f6c; padding-bottom: 6px;">Santé</div>
+    <div style="color: #8a7f6c; padding-bottom: 6px;">Projets</div>
+    <div style="color: #8a7f6c; padding-bottom: 6px;">Relations</div>
+    <div style="color: #8a7f6c; padding-bottom: 6px;">Potager</div>
+  </div>
+
+  <!-- Notes : texte pur, filets -->
+  <div style="display: flex; flex-direction: column; padding: 8px 28px 0 28px; flex-grow: 1;">
+    <div class="ink ink-2" style="display: flex; flex-direction: column; gap: 6px; padding: 18px 0; border-bottom: 1px solid #e3dccb;">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8a7f6c;"><span style="color: #7c3aed; font-weight: 600;">Projets</span><span>·</span><span>Idée</span><span style="margin-left: auto;">15:02</span></div>
+      <div style="font-family: 'Newsreader', Georgia, serif; font-size: 22px; font-weight: 500; line-height: 1.2;">Une rivale pour la narratrice</div>
+      <div style="font-size: 14px; line-height: 1.55; color: #5c554a;">Ajouter un personnage féminin négatif au chapitre 3, en miroir de la narratrice.</div>
+    </div>
+    <div class="ink ink-3" style="display: flex; flex-direction: column; gap: 6px; padding: 18px 0; border-bottom: 1px solid #e3dccb;">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8a7f6c;"><span style="color: #2f7a4f; font-weight: 600;">Santé</span><span>·</span><span>Tâche</span><span style="margin-left: auto;">11:40</span></div>
+      <div style="font-family: 'Newsreader', Georgia, serif; font-size: 22px; font-weight: 500; line-height: 1.2;">Douleurs au dos, soins à prévoir</div>
+      <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #5c554a;">
+        <div style="display: flex; gap: 10px; align-items: center;"><span style="width: 14px; height: 14px; border-radius: 999px; border: 1.5px solid #9a4a22; display: inline-block;"></span>Rendez-vous chez l'ostéo</div>
+        <div style="display: flex; gap: 10px; align-items: center;"><span style="width: 14px; height: 14px; border-radius: 999px; border: 1.5px solid #9a4a22; display: inline-block;"></span>Étirements le soir</div>
+      </div>
+    </div>
+    <div class="ink ink-4" style="display: flex; flex-direction: column; gap: 6px; padding: 18px 0; border-bottom: 1px solid #e3dccb;">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8a7f6c;"><span style="color: #db2777; font-weight: 600;">Relations</span><span>·</span><span>Réflexion</span><span style="margin-left: auto;">Hier</span></div>
+      <div style="font-family: 'Newsreader', Georgia, serif; font-size: 22px; font-weight: 500; line-height: 1.2;">Réconciliation avec Clara</div>
+      <div style="font-size: 14px; line-height: 1.55; color: #5c554a;">Je n'ai pas assez écouté. Proposer un vrai moment à deux ce week-end.</div>
+    </div>
+  </div>
+
+  <!-- Barre d'onglets -->
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 12px 28px 28px 28px; border-top: 1px solid #e3dccb; background: #f4efe4;">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; color: #1c1915; font-size: 11px; font-weight: 600;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg>Notes</div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; color: #8a7f6c; font-size: 11px;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8.2 7.2l7.4 0.6M7.5 8l3.2 8M16.6 10.2l-3.4 5.8"/></svg>Explorer</div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; color: #8a7f6c; font-size: 11px;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Réglages</div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

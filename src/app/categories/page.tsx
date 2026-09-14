@@ -11,7 +11,7 @@ export default async function CategoriesPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-4">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{m.categoriesPage.title}</h1>
+        <h1 className="text-[1.75rem] font-bold leading-tight">{m.categoriesPage.title}</h1>
         <p className="text-muted mt-1">{m.categoriesPage.intro}</p>
       </div>
       {suggested.length > 0 && (

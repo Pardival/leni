@@ -26,7 +26,7 @@ export default async function ExplorePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{m.explore.title}</h1>
+        <h1 className="text-[1.75rem] font-bold leading-tight">{m.explore.title}</h1>
         <p className="text-muted mt-1">{m.explore.intro}</p>
       </div>
 
@@ -36,7 +36,7 @@ export default async function ExplorePage() {
         <>
           <div className="grid md:grid-cols-2 gap-4">
             <section className="card p-5">
-              <h2 className="font-semibold mb-4">{m.explore.byCategory}</h2>
+              <h2 className="section-title mb-4">{m.explore.byCategory}</h2>
               <ul className="space-y-2.5">
                 {categories.map((c) => (
                   <li key={c.slug}>
@@ -63,7 +63,7 @@ export default async function ExplorePage() {
             </section>
 
             <section className="card p-5">
-              <h2 className="font-semibold mb-4">{m.explore.timeline}</h2>
+              <h2 className="section-title mb-4">{m.explore.timeline}</h2>
               <svg viewBox={`0 0 ${days.length * 10} 60`} className="w-full h-28" preserveAspectRatio="none">
                 {days.map((d, i) => {
                   const h = (d.count / maxDay) * 54;
@@ -82,7 +82,7 @@ export default async function ExplorePage() {
                   );
                 })}
               </svg>
-              <h2 className="font-semibold mt-6 mb-3">{m.explore.topTags}</h2>
+              <h2 className="section-title mt-6 mb-3">{m.explore.topTags}</h2>
               <div className="flex flex-wrap gap-1.5">
                 {stats.topTags.map(([t, n]) => (
                   <Link key={t} href={`/?tag=${encodeURIComponent(t)}`} className="chip">
@@ -94,7 +94,7 @@ export default async function ExplorePage() {
           </div>
 
           <section className="card p-5">
-            <h2 className="font-semibold">{m.explore.graph}</h2>
+            <h2 className="section-title">{m.explore.graph}</h2>
             <p className="text-sm text-muted mb-3">{m.explore.graphHint}</p>
             <Constellation notes={graphNotes} />
           </section>

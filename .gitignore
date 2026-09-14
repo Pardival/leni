@@ -43,3 +43,6 @@ next-env.d.ts
 # leni data
 /data/*
 !/data/.gitkeep
+
+# canevas de design assemblé (2 Mo, régénérable depuis les .dc.html)
+/design/directions/leni-directions.html

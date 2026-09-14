@@ -14,6 +14,9 @@
   est dans `.env.local` (`OPENAI_MODEL`), gpt-4.1-mini au 14 sept. 2026.
 - Schéma DB : `src/db/schema.ts`. Après modification :
   `pnpm drizzle-kit generate` (les migrations s'appliquent au démarrage).
+- Design : voir README « Design ». Icônes = SVG inline dans
+  `src/components/icons.tsx` (jamais d'emoji dans l'UI). Couleur d'un thème
+  → `.tint`/`.cat` avec `--c`, ne pas coder de teintes à la main.
 - CSS : les classes maison (`.btn`, `.card`, `.chip`, `.input`…) vivent dans
   `@layer components` pour que les utilitaires Tailwind gardent la priorité.
 - Lancer : `pnpm dev --hostname 0.0.0.0` (config `.claude/launch.json`,

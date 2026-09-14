@@ -21,6 +21,7 @@ const Patch = z
     kind: z.enum(KINDS),
     tags: z.array(z.string().max(50)).max(20),
     actionItems: z.array(z.string().max(500)).max(50),
+    doneActionItems: z.array(z.string().max(500)).max(50),
     placeName: z.string().max(200).nullable(),
     dueDate: z.string().max(40).nullable(),
     pinned: z.boolean(),

@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    a { color: #d9451f; } a:hover { color: #b8371a; }
+    @keyframes up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .up { animation: up 0.55s cubic-bezier(.2,.8,.2,1) both; }
+    .up-2 { animation-delay: 0.07s; } .up-3 { animation-delay: 0.14s; } .up-4 { animation-delay: 0.21s; }
+    @keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+    .breathe { animation: breathe 3s ease-in-out infinite; }
+  </style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #f7f5f0; color: #17150f; display: flex; flex-direction: column;">
+
+  <!-- En-tête -->
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 64px 24px 0 24px;">
+    <div style="display: flex; flex-direction: column; gap: 2px;">
+      <div style="font-size: 13px; font-weight: 500; color: #6f6a60;">Lundi 14 septembre</div>
+      <div class="up" style="font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;">Bonsoir, Kevin</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; background: #ffffff; border: 1px solid #e8e4db; font-size: 13px; font-weight: 600; color: #17150f;">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f4532d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1 3 4 4 4 8a4 4 0 0 1-8 0c0-1.5.5-2.5 1-3 .3 1.2 1 2 2 2.5C12 8 11 5 12 3z"/></svg>
+      7 jours
+    </div>
+  </div>
+
+  <!-- Capture : la seule action primaire -->
+  <div class="up up-2" style="display: flex; align-items: center; gap: 16px; margin: 22px 24px 0 24px; padding: 18px 18px 18px 20px; border-radius: 22px; background: linear-gradient(135deg, #ff7a55 0%, #f4532d 55%, #e0401d 100%); color: #ffffff; box-shadow: 0 12px 28px -14px rgba(244,83,45,0.65);">
+    <div style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1;">
+      <div style="font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 20px; font-weight: 700; line-height: 1.15;">Qu'as-tu en tête ?</div>
+      <div style="font-size: 13px; font-weight: 500; opacity: 0.9;">Dicte, Leni range.</div>
+    </div>
+    <div class="breathe" style="width: 56px; height: 56px; border-radius: 999px; background: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(0,0,0,0.35); flex-shrink: 0;">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#f4532d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+    </div>
+  </div>
+
+  <!-- À reprendre : actions ouvertes -->
+  <div class="up up-3" style="display: flex; flex-direction: column; gap: 10px; padding: 26px 24px 0 24px;">
+    <div style="display: flex; align-items: baseline; justify-content: space-between;">
+      <div style="font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 17px; font-weight: 700;">À reprendre</div>
+      <div style="font-size: 13px; font-weight: 600; color: #d9451f;">Tout voir</div>
+    </div>
+    <div style="display: flex; flex-direction: column; border-radius: 18px; background: #ffffff; border: 1px solid #e8e4db; box-shadow: 0 1px 2px rgba(23,21,15,0.04), 0 8px 24px -14px rgba(23,21,15,0.12);">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #f0ede6;">
+        <span style="width: 20px; height: 20px; border-radius: 7px; border: 1.5px solid #cfc9bd; display: inline-block; flex-shrink: 0;"></span>
+        <div style="display: flex; flex-direction: column; gap: 1px; flex-grow: 1; min-width: 0;">
+          <div style="font-size: 15px; font-weight: 600;">Prendre rendez-vous chez l'ostéo</div>
+          <div style="font-size: 12px; color: #6f6a60;">Santé · cette semaine</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px;">
+        <span style="width: 20px; height: 20px; border-radius: 7px; border: 1.5px solid #cfc9bd; display: inline-block; flex-shrink: 0;"></span>
+        <div style="display: flex; flex-direction: column; gap: 1px; flex-grow: 1; min-width: 0;">
+          <div style="font-size: 15px; font-weight: 600;">Proposer un moment à deux à Clara</div>
+          <div style="font-size: 12px; color: #6f6a60;">Relations · ce week-end</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thèmes : tuiles teintées, défilement horizontal -->
+  <div class="up up-4" style="display: flex; flex-direction: column; gap: 10px; padding: 24px 0 0 0;">
+    <div style="font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 17px; font-weight: 700; padding: 0 24px;">Thèmes</div>
+    <div style="display: flex; gap: 10px; padding: 0 24px; overflow: hidden;">
+      <div style="display: flex; flex-direction: column; justify-content: space-between; width: 112px; height: 84px; padding: 12px 14px; border-radius: 16px; background: #dff3e8; color: #0f6b3f; flex-shrink: 0;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg>
+        <div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-size: 14px; font-weight: 700;">Santé</span><span style="font-size: 12px; font-weight: 600; opacity: 0.7;">4</span></div>
+      </div>
+      <div style="display: flex; flex-direction: column; justify-content: space-between; width: 112px; height: 84px; padding: 12px 14px; border-radius: 16px; background: #ebe4ff; color: #5b2fd1; flex-shrink: 0;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM4 7l2-3h12l2 3M10 12h4"/></svg>
+        <div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-size: 14px; font-weight: 700;">Projets</span><span style="font-size: 12px; font-weight: 600; opacity: 0.7;">1</span></div>
+      </div>
+      <div style="display: flex; flex-direction: column; justify-content: space-between; width: 112px; height: 84px; padding: 12px 14px; border-radius: 16px; background: #ffe3ea; color: #b8134f; flex-shrink: 0;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M15 20c0-2.5 1.5-4.5 4-4.5s3 2 3 4.5"/></svg>
+        <div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-size: 14px; font-weight: 700;">Relations</span><span style="font-size: 12px; font-weight: 600; opacity: 0.7;">1</span></div>
+      </div>
+      <div style="display: flex; flex-direction: column; justify-content: space-between; width: 112px; height: 84px; padding: 12px 14px; border-radius: 16px; background: #fff0c9; color: #8a5a00; flex-shrink: 0;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-8M12 13c-4 0-7-3-7-7 4 0 7 3 7 7zM12 13c4 0 7-3 7-7-4 0-7 3-7 7z"/></svg>
+        <div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-size: 14px; font-weight: 700;">Potager</span><span style="font-size: 12px; font-weight: 600; opacity: 0.7;">2</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aujourd'hui -->
+  <div style="display: flex; flex-direction: column; gap: 10px; padding: 24px 24px 0 24px; flex-grow: 1;">
+    <div style="font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 17px; font-weight: 700;">Aujourd'hui</div>
+    <div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 18px; background: #ffffff; border: 1px solid #e8e4db;">
+      <div style="width: 38px; height: 38px; border-radius: 12px; background: #ebe4ff; color: #5b2fd1; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5V16h8v-2.5A6 6 0 0 0 12 3z"/></svg></div>
+      <div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1; min-width: 0;">
+        <div style="font-size: 15px; font-weight: 600; line-height: 1.25;">Une rivale pour la narratrice</div>
+        <div style="font-size: 12px; color: #6f6a60;">Projets · Idée · 15:02</div>
+      </div>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#b7b1a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 18px; background: #ffffff; border: 1px solid #e8e4db;">
+      <div style="width: 38px; height: 38px; border-radius: 12px; background: #dff3e8; color: #0f6b3f; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4 4L19 6"/></svg></div>
+      <div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1; min-width: 0;">
+        <div style="font-size: 15px; font-weight: 600; line-height: 1.25;">Douleurs au dos, soins à prévoir</div>
+        <div style="font-size: 12px; color: #6f6a60;">Santé · Tâche · 11:40</div>
+      </div>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#b7b1a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+  </div>
+
+  <!-- Barre d'onglets -->
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin: 0 16px 20px 16px; padding: 6px; border-radius: 999px; background: #ffffff; border: 1px solid #e8e4db; box-shadow: 0 8px 24px -14px rgba(23,21,15,0.2);">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 44px; border-radius: 999px; background: #17150f; color: #ffffff; font-size: 13px; font-weight: 600;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg>Notes</div>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 44px; border-radius: 999px; color: #6f6a60; font-size: 13px; font-weight: 600;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8.2 7.2l7.4 0.6M7.5 8l3.2 8M16.6 10.2l-3.4 5.8"/></svg>Explorer</div>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 44px; border-radius: 999px; color: #6f6a60; font-size: 13px; font-weight: 600;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>Moi</div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

@@ -56,6 +56,24 @@ Chaque note passe par le LLM (sortie structurée, `src/lib/ai/enrich.ts`) :
   couvre, puis le thème est créé et les notes rattachées. La page `/categories`
   permet de créer, écarter, renommer ou fusionner.
 
+## Design
+
+Direction « Blocs vifs, version produit » (maquettes dans `design/directions/`,
+canevas publié sur claude.ai). Tokens dans `src/app/globals.css` :
+
+- fond `#f7f5f0`, surface blanche, encre `#17150f`, un seul accent `#f4532d`
+  réservé à la capture ; mode sombre dérivé automatiquement ;
+- thèmes en teinte douce : `.tint` et `.cat` dérivent fond et texte de la
+  couleur du thème via `color-mix`, aucune couleur par thème à maintenir ;
+- titres Bricolage Grotesque, texte Plus Jakarta Sans ; rayons 22/18/16/999 ;
+- motion : `.up` (cascade à l'ouverture, `--i` pour le délai), `.breathe`,
+  `.wave-bar`, `.ring` ; tout est coupé par `prefers-reduced-motion`.
+
+Écrans : accueil (capture, « À reprendre », tuiles de thèmes, notes du jour),
+note (bandeau teinté, cases à cocher persistées dans `doneActionItems`),
+capture plein cadre (dictée navigateur, audio Whisper, ou clavier), Explorer,
+Moi (Raccourci iOS, thèmes, langue).
+
 ## Structure
 
 ```

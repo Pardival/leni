@@ -1,23 +1,24 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState, useTransition, type CSSProperties } from "react";
 import { KINDS, type Kind, type Note } from "@/db/schema";
 import { useI18n } from "@/i18n/client";
 import { appleMapsUrl, formatDateTime } from "@/lib/format";
 import { useCategories } from "./CategoriesProvider";
-import { CategoryBadge } from "./CategoryBadge";
-import { KindIcon } from "./KindIcon";
 import { NoteContent } from "./NoteContent";
+import { IconArchive, IconBack, IconCalendar, IconCheck, IconEdit, IconMap, IconRefresh, IconStar, IconTrash } from "./icons";
 
 export function NoteEditor({ note }: { note: Note }) {
   const { m, locale } = useI18n();
-  const { categories, label } = useCategories();
+  const { categories, get, label } = useCategories();
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [busy, startTransition] = useTransition();
   const [reprocessing, setReprocessing] = useState(false);
   const [showRaw, setShowRaw] = useState(false);
+  const [doneLocal, setDoneLocal] = useState<string[]>(note.doneActionItems);
 
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
@@ -29,14 +30,17 @@ export function NoteEditor({ note }: { note: Note }) {
   const [placeName, setPlaceName] = useState(note.placeName ?? "");
   const [dueDate, setDueDate] = useState(note.dueDate ?? "");
 
-  async function patch(body: Record<string, unknown>) {
+  const color = get(note.category)?.color ?? "var(--cat-other)";
+  const processing = note.status === "processing";
+
+  async function patch(body: Record<string, unknown>, refresh = true) {
     const res = await fetch(`/api/notes/${note.id}`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(body),
     });
     if (!res.ok) throw new Error(await res.text());
-    startTransition(() => router.refresh());
+    if (refresh) startTransition(() => router.refresh());
   }
 
   async function save() {
@@ -52,6 +56,12 @@ export function NoteEditor({ note }: { note: Note }) {
       dueDate: dueDate.trim() || null,
     });
     setEditing(false);
+  }
+
+  async function toggleAction(a: string) {
+    const next = doneLocal.includes(a) ? doneLocal.filter((x) => x !== a) : [...doneLocal, a];
+    setDoneLocal(next);
+    await patch({ doneActionItems: next }, false);
   }
 
   async function reprocess() {
@@ -71,243 +81,219 @@ export function NoteEditor({ note }: { note: Note }) {
     router.refresh();
   }
 
-  const processing = note.status === "processing";
-
   return (
-    <article className="card p-5 sm:p-8 space-y-6">
-      {/* En-tête */}
-      <header className="space-y-3">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-          <CategoryBadge slug={note.category} />
-          <span>·</span>
-          <KindIcon kind={note.kind} />
-          <span>·</span>
-          <time dateTime={note.capturedAt}>{formatDateTime(note.capturedAt, locale)}</time>
-          <span>·</span>
-          <span>{m.sources[note.source]}</span>
-          {note.language !== "und" && (
-            <>
-              <span>·</span>
-              <span className="uppercase">{note.language}</span>
-            </>
+    <article className="-mx-5 sm:mx-0">
+      {/* Bandeau teinté */}
+      <header className="tint rounded-b-[28px] sm:rounded-[28px] px-5 sm:px-8 pt-3 pb-6 space-y-5" style={{ "--c": color } as CSSProperties}>
+        <div className="flex items-center justify-between">
+          <Link href="/" className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/25 flex items-center justify-center" aria-label={m.common.back}>
+            <IconBack />
+          </Link>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/25 flex items-center justify-center"
+              onClick={() => patch({ pinned: !note.pinned })}
+              aria-label={note.pinned ? m.note.unpin : m.note.pin}
+              title={note.pinned ? m.note.unpin : m.note.pin}
+            >
+              <IconStar style={note.pinned ? { fill: "currentColor" } : undefined} />
+            </button>
+          </div>
+        </div>
+        <div className="space-y-2.5">
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+            <span className="px-2.5 py-1 rounded-full bg-white/75 dark:bg-black/25">{label(note.category)}</span>
+            <span className="px-2.5 py-1 rounded-full bg-white/75 dark:bg-black/25">{m.kinds[note.kind]}</span>
+            <span className="ml-auto font-medium opacity-80">{formatDateTime(note.capturedAt, locale)}</span>
+          </div>
+          {editing ? (
+            <input className="input text-xl font-semibold" value={title} onChange={(e) => setTitle(e.target.value)} />
+          ) : (
+            <h1 className="text-[1.75rem] sm:text-3xl font-bold leading-[1.12]">{note.title || m.common.untitled}</h1>
           )}
-          {processing && <span className="text-accent pulse">{m.status.processing}</span>}
+          {processing && <p className="text-sm font-medium pulse">{m.status.processing}</p>}
           {note.status === "error" && (
-            <span className="text-danger" title={note.error ?? ""}>
+            <p className="text-sm font-medium" title={note.error ?? ""}>
               {m.status.error}
-            </span>
+            </p>
           )}
         </div>
-
-        {editing ? (
-          <input className="input text-xl font-semibold" value={title} onChange={(e) => setTitle(e.target.value)} />
-        ) : (
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight leading-tight">
-            {note.title || m.common.untitled}
-          </h1>
-        )}
       </header>
 
       {/* Corps */}
-      {editing ? (
-        <div className="space-y-4">
-          <div>
-            <label className="label">{m.note.content}</label>
-            <textarea className="input min-h-48 prose-note" value={content} onChange={(e) => setContent(e.target.value)} />
-          </div>
-          <div>
-            <label className="label">{m.note.summary}</label>
-            <input className="input" value={summary} onChange={(e) => setSummary(e.target.value)} />
-          </div>
-          <div className="grid sm:grid-cols-2 gap-4">
+      <div className="px-5 sm:px-8 pt-6 space-y-6">
+        {editing ? (
+          <div className="space-y-4">
             <div>
-              <label className="label">{m.note.category}</label>
-              <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
-                {categories.map((c) => (
-                  <option key={c.slug} value={c.slug}>
-                    {label(c.slug)}
-                  </option>
-                ))}
-              </select>
+              <label className="label">{m.note.content}</label>
+              <textarea className="input min-h-48 prose-note" value={content} onChange={(e) => setContent(e.target.value)} />
             </div>
             <div>
-              <label className="label">{m.note.kind}</label>
-              <select className="input" value={kind} onChange={(e) => setKind(e.target.value as Kind)}>
-                {KINDS.map((k) => (
-                  <option key={k} value={k}>
-                    {m.kinds[k]}
-                  </option>
-                ))}
-              </select>
+              <label className="label">{m.note.summary}</label>
+              <input className="input" value={summary} onChange={(e) => setSummary(e.target.value)} />
             </div>
-            <div>
-              <label className="label">
-                {m.note.tags} <span className="font-normal normal-case tracking-normal">({m.note.tagsHint})</span>
-              </label>
-              <input className="input" value={tags} onChange={(e) => setTags(e.target.value)} />
-            </div>
-            <div>
-              <label className="label">{m.note.location}</label>
-              <input className="input" value={placeName} onChange={(e) => setPlaceName(e.target.value)} />
-            </div>
-            <div>
-              <label className="label">{m.note.dueDate}</label>
-              <input className="input" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-            </div>
-          </div>
-          <div>
-            <label className="label">{m.note.actionItems}</label>
-            <textarea className="input min-h-24" value={actions} onChange={(e) => setActions(e.target.value)} />
-          </div>
-          <div className="flex gap-2 justify-end">
-            <button className="btn btn-ghost" onClick={() => setEditing(false)} disabled={busy}>
-              {m.common.cancel}
-            </button>
-            <button className="btn btn-primary" onClick={save} disabled={busy}>
-              {m.common.save}
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {note.summary && note.summary !== note.content && (
-            <p className="text-muted italic border-l-2 border-accent/50 pl-3">{note.summary}</p>
-          )}
-          <NoteContent text={note.content} className="prose-note" />
-
-          {note.actionItems.length > 0 && (
-            <section>
-              <h2 className="label">{m.note.actionItems}</h2>
-              <ul className="space-y-1.5">
-                {note.actionItems.map((a, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="text-accent">☐</span>
-                    <span>{a}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-            {note.tags.length > 0 && (
+            <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <h2 className="label">{m.note.tags}</h2>
-                <div className="flex flex-wrap gap-1.5">
-                  {note.tags.map((t) => (
-                    <a key={t} href={`/?tag=${encodeURIComponent(t)}`} className="chip">
-                      #{t}
-                    </a>
+                <label className="label">{m.note.category}</label>
+                <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
+                  {categories.map((c) => (
+                    <option key={c.slug} value={c.slug}>
+                      {label(c.slug)}
+                    </option>
                   ))}
-                </div>
+                </select>
               </div>
-            )}
-            {(note.placeName || note.latitude != null) && (
               <div>
-                <h2 className="label">{m.note.location}</h2>
-                <p>
-                  {note.placeName && <span>📍 {note.placeName} </span>}
-                  {note.latitude != null && note.longitude != null && (
-                    <a
-                      className="text-accent underline"
-                      href={appleMapsUrl(note.latitude, note.longitude, note.placeName)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {m.note.openMap}
-                    </a>
-                  )}
-                </p>
+                <label className="label">{m.note.kind}</label>
+                <select className="input" value={kind} onChange={(e) => setKind(e.target.value as Kind)}>
+                  {KINDS.map((k) => (
+                    <option key={k} value={k}>
+                      {m.kinds[k]}
+                    </option>
+                  ))}
+                </select>
               </div>
-            )}
-            {note.dueDate && (
               <div>
-                <h2 className="label">{m.note.dueDate}</h2>
-                <p>📅 {note.dueDate}</p>
+                <label className="label">
+                  {m.note.tags} <span className="font-normal normal-case tracking-normal">({m.note.tagsHint})</span>
+                </label>
+                <input className="input" value={tags} onChange={(e) => setTags(e.target.value)} />
               </div>
-            )}
-            {(note.entities.people.length > 0 || note.entities.places.length > 0 || note.entities.projects.length > 0) && (
               <div>
-                <h2 className="label">{m.note.entities}</h2>
-                <dl className="space-y-0.5">
-                  {note.entities.people.length > 0 && (
-                    <div className="flex gap-2">
-                      <dt className="text-muted">{m.note.people}:</dt>
-                      <dd>{note.entities.people.join(", ")}</dd>
-                    </div>
-                  )}
-                  {note.entities.places.length > 0 && (
-                    <div className="flex gap-2">
-                      <dt className="text-muted">{m.note.places}:</dt>
-                      <dd>{note.entities.places.join(", ")}</dd>
-                    </div>
-                  )}
-                  {note.entities.projects.length > 0 && (
-                    <div className="flex gap-2">
-                      <dt className="text-muted">{m.note.projects}:</dt>
-                      <dd>{note.entities.projects.join(", ")}</dd>
-                    </div>
-                  )}
-                </dl>
+                <label className="label">{m.note.location}</label>
+                <input className="input" value={placeName} onChange={(e) => setPlaceName(e.target.value)} />
               </div>
-            )}
-            <div>
-              <h2 className="label">{m.note.sentiment}</h2>
-              <p>{m.sentiments[note.sentiment]}</p>
+              <div>
+                <label className="label">{m.note.dueDate}</label>
+                <input className="input" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+              </div>
             </div>
-            {note.enrichedBy && (
-              <div>
-                <h2 className="label">{m.note.enrichedBy}</h2>
-                <p className="font-mono text-xs">{note.enrichedBy}</p>
-              </div>
-            )}
+            <div>
+              <label className="label">{m.note.actionItems}</label>
+              <textarea className="input min-h-24" value={actions} onChange={(e) => setActions(e.target.value)} />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button className="btn btn-ghost" onClick={() => setEditing(false)} disabled={busy}>
+                {m.common.cancel}
+              </button>
+              <button className="btn btn-dark" onClick={save} disabled={busy}>
+                {m.common.save}
+              </button>
+            </div>
           </div>
+        ) : (
+          <>
+            <NoteContent text={note.content} className="prose-note" />
 
-          {note.audioPath && (
-            <section>
-              <h2 className="label">{m.note.audio}</h2>
-              <audio controls preload="none" src={`/api/audio/${encodeURIComponent(note.audioPath)}`} className="w-full" />
-            </section>
-          )}
+            {note.actionItems.length > 0 && (
+              <section className="space-y-2">
+                <h2 className="label">{m.note.todo}</h2>
+                <div className="card divide-y divide-border-2">
+                  {note.actionItems.map((a) => {
+                    const done = doneLocal.includes(a);
+                    return (
+                      <div key={a} className="flex items-center gap-3 px-4 py-3">
+                        <button type="button" className="checkbox" data-checked={done} onClick={() => toggleAction(a)} aria-label={a}>
+                          {done && <IconCheck />}
+                        </button>
+                        <span className={`text-[15px] font-medium ${done ? "line-through text-muted" : ""}`}>{a}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
 
-          <section>
-            <button className="text-xs text-muted underline" onClick={() => setShowRaw((v) => !v)}>
-              {m.note.rawText}
-            </button>
-            {showRaw && (
-              <div className="mt-2 space-y-3">
-                <p className="text-sm text-muted whitespace-pre-wrap font-mono">{note.rawText}</p>
-                {note.analysis && (
-                  <div>
-                    <h3 className="label">{m.categoriesPage.analysis}</h3>
-                    <p className="text-sm text-muted italic">{note.analysis}</p>
-                  </div>
+            {(note.tags.length > 0 || note.placeName || note.latitude != null || note.dueDate) && (
+              <div className="flex flex-wrap gap-2">
+                {note.tags.map((t) => (
+                  <Link key={t} href={`/?tag=${encodeURIComponent(t)}`} className="chip">
+                    #{t}
+                  </Link>
+                ))}
+                {(note.placeName || note.latitude != null) && (
+                  <a
+                    className="chip"
+                    href={note.latitude != null && note.longitude != null ? appleMapsUrl(note.latitude, note.longitude, note.placeName) : undefined}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <IconMap />
+                    {note.placeName ?? m.note.openMap}
+                  </a>
+                )}
+                {note.dueDate && (
+                  <span className="chip">
+                    <IconCalendar />
+                    {note.dueDate}
+                  </span>
                 )}
               </div>
             )}
-          </section>
-        </div>
-      )}
 
-      {/* Actions */}
+            {(note.entities.people.length > 0 || note.entities.projects.length > 0) && (
+              <p className="text-sm text-muted">
+                {note.entities.people.length > 0 && (
+                  <span>
+                    {m.note.people} : {note.entities.people.join(", ")}
+                  </span>
+                )}
+                {note.entities.people.length > 0 && note.entities.projects.length > 0 && <span> · </span>}
+                {note.entities.projects.length > 0 && (
+                  <span>
+                    {m.note.projects} : {note.entities.projects.join(", ")}
+                  </span>
+                )}
+              </p>
+            )}
+
+            {note.audioPath && (
+              <div className="card p-3">
+                <audio controls preload="none" src={`/api/audio/${encodeURIComponent(note.audioPath)}`} className="w-full" />
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <button type="button" className="text-sm text-muted underline underline-offset-4" onClick={() => setShowRaw((v) => !v)}>
+                {showRaw ? m.note.hideRaw : m.note.showRaw}
+              </button>
+              {showRaw && (
+                <div className="space-y-3 text-sm text-muted">
+                  <p className="whitespace-pre-wrap">{note.rawText}</p>
+                  {note.analysis && (
+                    <p className="italic">
+                      <span className="font-semibold not-italic">{m.categoriesPage.analysis} : </span>
+                      {note.analysis}
+                    </p>
+                  )}
+                  {note.enrichedBy && <p className="font-mono text-xs">{note.enrichedBy}</p>}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Barre d'actions */}
       {!editing && (
-        <footer className="flex flex-wrap gap-2 pt-2 border-t border-border">
-          <button className="btn" onClick={() => setEditing(true)}>
-            {m.common.edit}
-          </button>
-          <button className="btn" onClick={reprocess} disabled={reprocessing || processing}>
-            {reprocessing ? m.note.reprocessing : m.note.reprocess}
-          </button>
-          <button className="btn" onClick={() => patch({ pinned: !note.pinned })}>
-            {note.pinned ? m.note.unpin : m.note.pin}
-          </button>
-          <button className="btn" onClick={() => patch({ archived: !note.archived })}>
-            {note.archived ? m.note.unarchive : m.note.archive}
-          </button>
-          <button className="btn btn-danger ml-auto" onClick={remove}>
-            {m.common.delete}
-          </button>
-        </footer>
+        <div className="sticky bottom-24 sm:bottom-6 mt-8 mx-5 sm:mx-0">
+          <div className="tabbar flex" style={{ display: "flex" }}>
+            <button className="tab flex-1 px-4" data-active="true" onClick={() => setEditing(true)}>
+              <IconEdit />
+              {m.common.edit}
+            </button>
+            <button className="tab w-11" onClick={() => patch({ archived: !note.archived })} title={note.archived ? m.note.unarchive : m.note.archive} aria-label={m.note.archive}>
+              <IconArchive />
+            </button>
+            <button className="tab w-11" onClick={reprocess} disabled={reprocessing || processing} title={m.note.reprocess} aria-label={m.note.reprocess}>
+              <IconRefresh className={reprocessing ? "pulse" : ""} />
+            </button>
+            <button className="tab w-11 text-danger" onClick={remove} title={m.common.delete} aria-label={m.common.delete}>
+              <IconTrash />
+            </button>
+          </div>
+        </div>
       )}
     </article>
   );

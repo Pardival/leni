@@ -1,0 +1,19 @@
+{
+  "pages": [
+    { "id": "page-1", "name": "Direction C · pro" },
+    { "id": "page-2", "name": "Pistes écartées" }
+  ],
+  "artboards": [
+    { "file": "Main.dc.html", "title": "Accueil", "x": 0, "y": 0, "w": 390, "h": 844, "page": "page-1" },
+    { "file": "NoteDetail.dc.html", "title": "Note", "x": 480, "y": 0, "w": 390, "h": 844, "page": "page-1" },
+    { "file": "Capture.dc.html", "title": "Capture", "x": 960, "y": 0, "w": 390, "h": 844, "page": "page-1" },
+    { "file": "DirectionC.dc.html", "title": "C · première version", "x": 1560, "y": 0, "w": 390, "h": 844, "page": "page-1" },
+    { "file": "DirectionA.dc.html", "title": "A · Papier & encre", "x": 0, "y": 0, "w": 390, "h": 844, "page": "page-2" }
+  ],
+  "annotations": [
+    { "id": "brief", "x": 0, "y": -300, "w": 560, "page": "page-1", "text": "Direction C, version produit.\nGardé : typo affirmée, couleur par thème, dictée comme seule action primaire.\nChangé : bordures noires et ombres décalées → surfaces blanches, bord fin, ombre légère ; couleurs saturées → teintes douces avec texte foncé ; chiffres en gros → « À reprendre » (les actions ouvertes de toutes tes notes) ; grille 8 px et une seule famille de rayons.\nÀ droite, la première version de C pour comparer." },
+    { "id": "system", "x": 0, "y": 920, "w": 1350, "page": "page-1", "text": "Système : fond #f7f5f0 · surface #ffffff · encre #17150f · accent unique #f4532d (capture, liens) · thèmes = teinte claire + texte foncé (Santé vert, Projets violet, Relations rose, Potager ambre). Titres Bricolage Grotesque, texte Plus Jakarta Sans. Rayons 22 / 18 / 16 / 999. Ombres : 0 1px 2px 4 % + 0 8px 24px 12 %. Motion : apparition en cascade 55 ms, bouton de capture qui respire, onde animée pendant la dictée." },
+    { "id": "old-b", "x": 480, "y": 0, "w": 390, "page": "page-2", "text": "B · Nuit & constellation a été retirée du canevas ; dis-moi si tu veux la revoir." }
+  ],
+  "launch": { "view": "canvas", "page": "page-1" }
+}

@@ -9,6 +9,7 @@ export const config = {
     transcribeModel: process.env.OPENAI_TRANSCRIBE_MODEL?.trim() || "whisper-1",
   },
   captureToken: process.env.CAPTURE_TOKEN?.trim() || null,
+  userName: process.env.LENI_USER_NAME?.trim() || null,
   appPassword: process.env.APP_PASSWORD?.trim() || null,
   database: {
     url: process.env.DATABASE_URL?.trim() || "file:./data/leni.db",

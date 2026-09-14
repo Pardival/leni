@@ -233,6 +233,7 @@ export type UpdateNoteInput = Partial<
     | "kind"
     | "tags"
     | "actionItems"
+    | "doneActionItems"
     | "placeName"
     | "dueDate"
     | "pinned"
@@ -292,4 +293,41 @@ function parseIsoOrNow(value: string | null | undefined): string {
   if (!value) return nowIso();
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? nowIso() : d.toISOString();
+}
+
+export type OpenAction = { noteId: string; noteTitle: string; category: string; dueDate: string | null; text: string };
+
+/** Actions non cochées, toutes notes confondues, les plus récentes d'abord. */
+export async function listOpenActions(limit = 5): Promise<OpenAction[]> {
+  const all = await listNotes({ limit: 500 });
+  const out: OpenAction[] = [];
+  for (const n of all) {
+    const done = new Set(n.doneActionItems);
+    for (const a of n.actionItems) {
+      if (done.has(a)) continue;
+      out.push({ noteId: n.id, noteTitle: n.title, category: n.category, dueDate: n.dueDate, text: a });
+      if (out.length >= limit) return out;
+    }
+  }
+  return out;
+}
+
+/** Nombre de jours consécutifs (aujourd'hui inclus, ou hier) avec au moins une note. */
+export async function getStreak(): Promise<number> {
+  const db = await getDb();
+  const rows = await db.select({ capturedAt: notes.capturedAt }).from(notes);
+  const days = new Set(rows.map((r) => localDayKey(r.capturedAt)));
+  let cursor = new Date();
+  if (!days.has(localDayKey(cursor.toISOString()))) cursor = new Date(cursor.getTime() - 86_400_000);
+  let streak = 0;
+  while (days.has(localDayKey(cursor.toISOString()))) {
+    streak++;
+    cursor = new Date(cursor.getTime() - 86_400_000);
+  }
+  return streak;
+}
+
+function localDayKey(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }

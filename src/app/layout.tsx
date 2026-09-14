@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import { CategoriesProvider } from "@/components/CategoriesProvider";
 import { Nav } from "@/components/Nav";
 import { I18nProvider } from "@/i18n/client";
@@ -7,20 +7,20 @@ import { getI18n } from "@/i18n/server";
 import { listCategories } from "@/lib/categories";
 import "./globals.css";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const display = Bricolage_Grotesque({ variable: "--font-display", subsets: ["latin"], weight: ["600", "700"] });
+const body = Plus_Jakarta_Sans({ variable: "--font-body", subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
   title: { default: "Leni", template: "%s · Leni" },
-  description: "Capture. Laisse Leni ranger.",
+  description: "Dicte, Leni range.",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Leni" },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f3ec" },
-    { media: "(prefers-color-scheme: dark)", color: "#14120e" },
+    { media: "(prefers-color-scheme: light)", color: "#f7f5f0" },
+    { media: "(prefers-color-scheme: dark)", color: "#15130f" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -30,12 +30,12 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [{ locale }, categories] = await Promise.all([getI18n(), listCategories()]);
   return (
-    <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang={locale} className={`${display.variable} ${body.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <I18nProvider locale={locale}>
           <CategoriesProvider categories={categories}>
             <Nav />
-            <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 pt-4 pb-28 sm:pb-12">{children}</main>
+            <main className="flex-1 w-full max-w-3xl mx-auto px-5 sm:px-6 pt-4 pb-32 sm:pb-16">{children}</main>
           </CategoriesProvider>
         </I18nProvider>
       </body>

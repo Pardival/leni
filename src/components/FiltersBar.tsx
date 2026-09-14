@@ -7,15 +7,11 @@ import { KINDS } from "@/db/schema";
 import { useI18n } from "@/i18n/client";
 import { useCategories } from "./CategoriesProvider";
 import { KIND_ICONS } from "./KindIcon";
+import { IconSearch } from "./icons";
 
-type Props = {
-  tags: string[];
-  counts: Record<string, number>;
-};
-
-export function FiltersBar({ tags, counts }: Props) {
+export function FiltersBar({ tags }: { tags: string[] }) {
   const { m } = useI18n();
-  const { categories, label } = useCategories();
+  const { label } = useCategories();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -25,14 +21,12 @@ export function FiltersBar({ tags, counts }: Props) {
   const tag = params.get("tag") ?? "";
   const archived = params.get("archived") === "true";
   const [search, setSearch] = useState(q);
-  // Resynchronise le champ quand l'URL change (ex: "Effacer les filtres").
   const [prevQ, setPrevQ] = useState(q);
   if (prevQ !== q) {
     setPrevQ(q);
     setSearch(q);
   }
 
-  // Recherche debouncée : met l'URL à jour sans recharger la page.
   useEffect(() => {
     if (search === q) return;
     const t = setTimeout(() => router.replace(`${pathname}?${withParam(params, "q", search)}`), 250);
@@ -42,79 +36,58 @@ export function FiltersBar({ tags, counts }: Props) {
   const hasFilters = Boolean(q || category || kind || tag || archived);
 
   return (
-    <div className="space-y-3">
-      <div className="flex gap-2">
+    <div className="space-y-2.5">
+      <div className="relative">
+        <IconSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-faint" />
         <input
           type="search"
-          className="input"
+          className="input pl-10"
           placeholder={m.notes.searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           aria-label={m.common.search}
         />
+      </div>
+
+      <div className="flex gap-1.5 overflow-x-auto no-scrollbar -mx-5 px-5 sm:mx-0 sm:px-0">
+        {category && (
+          <Link href={`${pathname}?${withParam(params, "category", "")}`} className="chip" data-active="true">
+            {label(category)} ×
+          </Link>
+        )}
+        {tag && (
+          <Link href={`${pathname}?${withParam(params, "tag", "")}`} className="chip" data-active="true">
+            #{tag} ×
+          </Link>
+        )}
+        {KINDS.map((k) => {
+          const Icon = KIND_ICONS[k];
+          return (
+            <Link key={k} href={`${pathname}?${withParam(params, "kind", kind === k ? "" : k)}`} className="chip" data-active={kind === k}>
+              <Icon size={14} />
+              {m.kinds[k]}
+            </Link>
+          );
+        })}
+        <Link href={`${pathname}?${withParam(params, "archived", archived ? "" : "true")}`} className="chip" data-active={archived}>
+          {m.notes.showArchived}
+        </Link>
         {hasFilters && (
-          <Link href={pathname} className="btn btn-ghost shrink-0">
+          <Link href={pathname} className="chip text-accent">
             {m.notes.clearFilters}
           </Link>
         )}
       </div>
 
-      <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
-        <Link href={`${pathname}?${withParam(params, "category", "")}`} className="chip" data-active={!category}>
-          {m.common.all}
-        </Link>
-        {categories.map((c) => (
-          <Link
-            key={c.slug}
-            href={`${pathname}?${withParam(params, "category", c.slug)}`}
-            className="chip"
-            data-active={category === c.slug}
-          >
-            <span className="w-2 h-2 rounded-full" style={{ background: c.color }} />
-            {label(c.slug)}
-            {counts[c.slug] ? <span className="opacity-60">{counts[c.slug]}</span> : null}
-          </Link>
-        ))}
-        <Link href="/categories" className="chip opacity-70" title={m.categoriesPage.manage}>
-          ⚙︎
-        </Link>
-      </div>
-
-      <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
-        <Link href={`${pathname}?${withParam(params, "kind", "")}`} className="chip" data-active={!kind}>
-          {m.notes.allKinds}
-        </Link>
-        {KINDS.map((k) => (
-          <Link key={k} href={`${pathname}?${withParam(params, "kind", kind === k ? "" : k)}`} className="chip" data-active={kind === k}>
-            <span aria-hidden>{KIND_ICONS[k]}</span>
-            {m.kinds[k]}
-          </Link>
-        ))}
-      </div>
-
-      {tags.length > 0 && (
-        <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
+      {tags.length > 0 && !tag && (
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar -mx-5 px-5 sm:mx-0 sm:px-0">
           {tags.map((t) => (
-            <Link
-              key={t}
-              href={`${pathname}?${withParam(params, "tag", tag === t ? "" : t)}`}
-              className="chip"
-              data-active={tag === t}
-            >
+            <Link key={t} href={`${pathname}?${withParam(params, "tag", t)}`} className="chip">
               #{t}
             </Link>
           ))}
         </div>
       )}
-
-      <label className="inline-flex items-center gap-2 text-xs text-muted cursor-pointer">
-        <input
-          type="checkbox"
-          checked={archived}
-          onChange={(e) => router.replace(`${pathname}?${withParam(params, "archived", e.target.checked ? "true" : "")}`)}
-        />
-        {m.notes.showArchived}
-      </label>
     </div>
   );
 }

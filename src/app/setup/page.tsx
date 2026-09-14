@@ -37,7 +37,7 @@ export default async function SetupPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{m.setup.title}</h1>
+        <h1 className="text-[1.75rem] font-bold leading-tight">{m.setup.title}</h1>
         <p className="text-muted mt-1">{m.setup.intro}</p>
       </div>
 
