@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/i18n/client";
-import { IconExplore, IconMic, IconNotes, IconUser } from "./icons";
+import { IconBook, IconExplore, IconMic, IconNotes, IconUser } from "./icons";
 
 export function Nav() {
   const { m } = useI18n();
   const pathname = usePathname();
   const items = [
     { href: "/", label: m.nav.notes, Icon: IconNotes, active: pathname === "/" || pathname.startsWith("/notes") },
-    { href: "/explore", label: m.nav.explore, Icon: IconExplore, active: pathname.startsWith("/explore") },
+    { href: "/learn", label: m.nav.learn, Icon: IconBook, active: pathname.startsWith("/learn") },
+    { href: "/explore", label: m.nav.explore, Icon: IconExplore, active: pathname.startsWith("/explore") || pathname.startsWith("/ask") },
     {
       href: "/me",
       label: m.nav.me,
@@ -18,7 +19,7 @@ export function Nav() {
       active: pathname.startsWith("/me") || pathname.startsWith("/setup") || pathname.startsWith("/categories"),
     },
   ];
-  if (pathname.startsWith("/capture")) return null;
+  if (pathname.startsWith("/capture") || /^\/learn\/[^/]+\/review/.test(pathname)) return null;
 
   return (
     <>
@@ -46,10 +47,10 @@ export function Nav() {
 
       {/* Barre basse (mobile) */}
       <nav className="sm:hidden fixed bottom-0 inset-x-0 z-30 px-4 pb-safe pointer-events-none">
-        <div className="tabbar pointer-events-auto grid-cols-3">
+        <div className="tabbar pointer-events-auto grid-cols-4">
           {items.map((it) => (
-            <Link key={it.href} href={it.href} className="tab" data-active={it.active}>
-              <it.Icon size={18} />
+            <Link key={it.href} href={it.href} className="tab text-[11px]" data-active={it.active}>
+              <it.Icon size={17} />
               {it.label}
             </Link>
           ))}

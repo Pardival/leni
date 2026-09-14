@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { KINDS, type Kind, type Note } from "@/db/schema";
 import { AutoRefresh } from "@/components/AutoRefresh";
+import { CourseCard } from "@/components/CourseCard";
 import { CaptureHero } from "@/components/CaptureHero";
 import { FiltersBar } from "@/components/FiltersBar";
 import { NoteRow } from "@/components/NoteRow";
@@ -12,6 +13,7 @@ import { format } from "@/i18n";
 import { getI18n } from "@/i18n/server";
 import { config } from "@/lib/config";
 import { dayKey, dayLabel } from "@/lib/format";
+import { listSources } from "@/lib/learn/sources";
 import { getStreak, listNotes, listOpenActions } from "@/lib/notes";
 
 export const dynamic = "force-dynamic";
@@ -26,12 +28,14 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const archived = sp.archived === "true";
   const filtering = Boolean(sp.q || category || kind || sp.tag || archived);
 
-  const [notes, all, openActions, streak] = await Promise.all([
+  const [notes, all, openActions, streak, courses] = await Promise.all([
     listNotes({ q: sp.q, category, kind, tag: sp.tag, archived }),
     listNotes({ archived: false }),
     listOpenActions(5),
     getStreak(),
+    listSources(),
   ]);
+  const dueTotal = courses.reduce((n, c) => n + c.due, 0);
 
   const counts: Record<string, number> = {};
   const tagCounts = new Map<string, number>();
@@ -82,14 +86,35 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <OpenActions actions={openActions} />
           </section>
 
-          <section className="up space-y-3" style={{ "--i": 3 } as React.CSSProperties}>
+          {courses.length > 0 && (
+            <section className="up space-y-3" style={{ "--i": 3 } as React.CSSProperties}>
+              <div className="flex items-baseline justify-between">
+                <h2 className="section-title">{m.notes.learnTitle}</h2>
+                <Link href="/learn" className="text-sm font-semibold text-accent">
+                  {m.notes.learnAll}
+                </Link>
+              </div>
+              {dueTotal > 0 && <p className="text-sm text-muted">{format(m.learn.dueToday, { count: dueTotal })}</p>}
+              <div className="space-y-2">
+                {courses
+                  .slice()
+                  .sort((a, b) => b.due - a.due)
+                  .slice(0, 3)
+                  .map((c) => (
+                    <CourseCard key={c.id} course={c} compact />
+                  ))}
+              </div>
+            </section>
+          )}
+
+          <section className="up space-y-3" style={{ "--i": 4 } as React.CSSProperties}>
             <h2 className="section-title">{m.notes.themes}</h2>
             <ThemeTiles counts={counts} />
           </section>
         </>
       )}
 
-      <section className="up space-y-4" style={{ "--i": 4 } as React.CSSProperties}>
+      <section className="up space-y-4" style={{ "--i": 5 } as React.CSSProperties}>
         <div className="flex items-baseline justify-between">
           <h2 className="section-title">{filtering ? m.notes.title : m.notes.allNotes}</h2>
           <span className="text-sm text-muted">{format(m.notes.count, { count: notes.length })}</span>

@@ -43,6 +43,13 @@
       "when": 1789371754803,
       "tag": "0005_embeddings_insights",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1789373883358,
+      "tag": "0006_learn",
+      "breakpoints": true
     }
   ]
 }

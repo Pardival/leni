@@ -11,14 +11,18 @@
   "dependencies": {
     "@libsql/client": "^0.18.0",
     "drizzle-orm": "^0.45.2",
+    "html-to-text": "^10.0.1",
     "next": "16.3.5",
     "openai": "^7.15.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "ts-fsrs": "^5.4.2",
+    "unpdf": "^1.8.1",
     "zod": "^4.6.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/html-to-text": "^9.0.4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

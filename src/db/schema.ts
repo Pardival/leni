@@ -162,3 +162,118 @@ export const insights = sqliteTable(
   (t) => [index("insights_note_idx").on(t.noteId)],
 );
 export type Insight = typeof insights.$inferSelect;
+
+/* ── Apprendre (V2.2) ─────────────────────────────────────────────────────── */
+
+export const SOURCE_KINDS = ["pdf", "url", "text"] as const;
+export type SourceKind = (typeof SOURCE_KINDS)[number];
+export const SOURCE_STATUSES = ["extracting", "summarizing", "generating", "ready", "error"] as const;
+export type SourceStatus = (typeof SOURCE_STATUSES)[number];
+
+/** Une source à apprendre : PDF, page web ou texte collé. */
+export const sources = sqliteTable("sources", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  kind: text("kind", { enum: SOURCE_KINDS }).notNull(),
+  originalName: text("original_name"),
+  url: text("url"),
+  /** Texte intégral extrait. */
+  text: text("text").notNull(),
+  charCount: integer("char_count").notNull().default(0),
+  pageCount: integer("page_count"),
+  language: text("language").notNull().default("und"),
+  status: text("status", { enum: SOURCE_STATUSES }).notNull().default("extracting"),
+  error: text("error"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+export type LearnSource = typeof sources.$inferSelect;
+
+export type DocSection = { heading: string; content: string };
+export type GlossaryEntry = { term: string; definition: string };
+
+/** La synthèse générée d'une source. */
+export const documents = sqliteTable("documents", {
+  id: text("id").primaryKey(),
+  sourceId: text("source_id").notNull().unique(),
+  title: text("title").notNull(),
+  /** Résumé en quelques paragraphes. */
+  summary: text("summary").notNull(),
+  sections: text("sections", { mode: "json" }).$type<DocSection[]>().notNull().default(sql`'[]'`),
+  keyPoints: text("key_points", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`),
+  glossary: text("glossary", { mode: "json" }).$type<GlossaryEntry[]>().notNull().default(sql`'[]'`),
+  openQuestions: text("open_questions", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`),
+  model: text("model").notNull(),
+  version: integer("version").notNull().default(1),
+  createdAt: text("created_at").notNull(),
+});
+export type Document = typeof documents.$inferSelect;
+
+/** Une notion nommée, extraite d'une source. */
+export const concepts = sqliteTable(
+  "concepts",
+  {
+    id: text("id").primaryKey(),
+    sourceId: text("source_id").notNull(),
+    name: text("name").notNull(),
+    description: text("description").notNull().default(""),
+    /** 0 à 100, recalculée après chaque révision. */
+    mastery: real("mastery").notNull().default(0),
+    order: integer("order").notNull().default(0),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => [index("concepts_source_idx").on(t.sourceId)],
+);
+export type Concept = typeof concepts.$inferSelect;
+
+export const CARD_FORMATS = ["quiz", "open", "exercise", "explain"] as const;
+export type CardFormat = (typeof CARD_FORMATS)[number];
+
+/** Une carte de révision, avec son état de mémoire FSRS. */
+export const cards = sqliteTable(
+  "cards",
+  {
+    id: text("id").primaryKey(),
+    sourceId: text("source_id").notNull(),
+    conceptId: text("concept_id").notNull(),
+    format: text("format", { enum: CARD_FORMATS }).notNull(),
+    prompt: text("prompt").notNull(),
+    /** Quiz : propositions ; l'index correct est dans `answer`. */
+    options: text("options", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`),
+    answer: text("answer").notNull(),
+    explanation: text("explanation").notNull().default(""),
+    verified: integer("verified", { mode: "boolean" }).notNull().default(false),
+    flagged: integer("flagged", { mode: "boolean" }).notNull().default(false),
+    // État FSRS
+    due: text("due").notNull(),
+    stability: real("stability").notNull().default(0),
+    difficulty: real("difficulty").notNull().default(0),
+    scheduledDays: integer("scheduled_days").notNull().default(0),
+    learningSteps: integer("learning_steps").notNull().default(0),
+    reps: integer("reps").notNull().default(0),
+    lapses: integer("lapses").notNull().default(0),
+    state: integer("state").notNull().default(0),
+    lastReview: text("last_review"),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => [index("cards_source_idx").on(t.sourceId), index("cards_due_idx").on(t.due)],
+);
+export type Card = typeof cards.$inferSelect;
+
+/** Journal des réponses. */
+export const reviews = sqliteTable(
+  "reviews",
+  {
+    id: text("id").primaryKey(),
+    cardId: text("card_id").notNull(),
+    sourceId: text("source_id").notNull(),
+    rating: integer("rating").notNull(),
+    correct: integer("correct", { mode: "boolean" }).notNull(),
+    answerText: text("answer_text"),
+    feedback: text("feedback"),
+    elapsedMs: integer("elapsed_ms"),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => [index("reviews_source_idx").on(t.sourceId), index("reviews_created_idx").on(t.createdAt)],
+);
+export type Review = typeof reviews.$inferSelect;

@@ -73,6 +73,25 @@ Chaque note passe par le LLM (sortie structurée, `src/lib/ai/enrich.ts`) :
 Vision complète de la V2 (réfléchir / apprendre / ranger) :
 <https://claude.ai/code/artifact/da55b84a-831a-4df1-b373-e6721041b5f6>
 
+## Apprendre (V2.2)
+
+- **Sources** (`/learn`) : PDF (extraction `unpdf`), lien (`html-to-text`) ou
+  texte collé. `POST /api/sources` répond immédiatement ; la suite tourne en
+  arrière-plan (`after`) : synthèse par morceaux puis document structuré
+  (résumé, sections, points clés, glossaire, questions ouvertes, concepts),
+  puis cartes par lot de concepts, **vérifiées par un second passage** ; les
+  cartes refusées ne sont jamais servies. Bouton « mauvaise question » en
+  session.
+- **Formats** : quiz, question ouverte, exercice, « explique-moi ». Les
+  réponses libres sont dictées ou tapées et corrigées par le modèle (score
+  0–1 → note FSRS).
+- **Planification** : `ts-fsrs` (rétention cible 90 %), état par carte dans
+  `cards`, journal dans `reviews`, maîtrise d'un concept = rappel moyen de
+  ses cartes. Session = cartes dues, formats alternés, 10 par défaut.
+- Limites connues : un gros PDF (plus de 60 pages) peut dépasser les 300 s
+  d'une fonction Vercel ; découper le pipeline en étapes reprises est la
+  suite naturelle.
+
 ## Design
 
 Direction « Blocs vifs, version produit » (maquettes dans `design/directions/`,
@@ -113,7 +132,7 @@ data/             base SQLite + audio (non versionné)
 ## Feuille de route
 
 - [x] Déploiement cloud (Vercel + Turso) : voir `DEPLOY.md`
-- [ ] V2.2 Apprendre : sources (PDF, liens), documents de synthèse, concepts, révision FSRS
+- [x] V2.2 Apprendre : sources, synthèse, concepts, révision FSRS
 - [ ] V2.3 Voir : carte des concepts, tableau d'apprentissage, fil des réflexions
 - [ ] Rappels sur les actions à faire / échéances
 - [ ] Export (Markdown, JSON)

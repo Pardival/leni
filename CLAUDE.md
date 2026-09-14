@@ -15,6 +15,9 @@
 - V2 : trois destins par note (réfléchir / apprendre / ranger) dérivés du
   type ; socle sémantique dans `src/lib/embeddings.ts`, `ai/ask.ts`,
   `ai/deepen.ts`. Après un déploiement, lancer `POST /api/embeddings/rebuild`.
+- Apprendre : `src/lib/learn/` (extract, synthesize, cards, grade, fsrs,
+  sources = pipeline + sessions). Ne jamais renvoyer `answer`/`explanation`
+  d'une carte au client avant la réponse (`/session` les retire).
 - Schéma DB : `src/db/schema.ts`. Après modification :
   `pnpm drizzle-kit generate` (les migrations s'appliquent au démarrage).
 - Design : voir README « Design ». Icônes = SVG inline dans
