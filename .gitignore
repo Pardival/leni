@@ -46,3 +46,6 @@ next-env.d.ts
 
 # canevas de design assemblé (2 Mo, régénérable depuis les .dc.html)
 /design/directions/leni-directions.html
+
+# le modèle de configuration doit être versionné
+!.env.example
