@@ -2,15 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
-import type { Category } from "@/db/schema";
-
-type GraphNote = { id: string; title: string; category: Category; tags: string[] };
+type GraphNote = { id: string; title: string; color: string; tags: string[] };
 
 type Node = {
   id: string;
   kind: "note" | "tag";
   label: string;
-  category?: Category;
+  color?: string;
   x: number;
   y: number;
   vx: number;
@@ -56,7 +54,7 @@ export function Constellation({ notes }: { notes: GraphNote[] }) {
       const linked = n.tags.filter((t) => tagIndex.has(t));
       if (linked.length === 0 && tags.length > 0) continue;
       const idx = nodes.length;
-      nodes.push({ id: n.id, kind: "note", label: n.title, category: n.category, x: W() / 2 + rnd(W()), y: H() / 2 + rnd(H()), vx: 0, vy: 0, r: 5, href: `/notes/${n.id}` });
+      nodes.push({ id: n.id, kind: "note", label: n.title, color: n.color, x: W() / 2 + rnd(W()), y: H() / 2 + rnd(H()), vx: 0, vy: 0, r: 5, href: `/notes/${n.id}` });
       for (const t of linked) edges.push({ a: idx, b: tagIndex.get(t)! });
     }
 
@@ -146,7 +144,7 @@ export function Constellation({ notes }: { notes: GraphNote[] }) {
       for (const n of nodes) {
         ctx!.beginPath();
         ctx!.arc(n.x, n.y, n.r + (n === hover ? 2 : 0), 0, Math.PI * 2);
-        ctx!.fillStyle = n.kind === "tag" ? color("--ink") : color(`--cat-${n.category}`);
+        ctx!.fillStyle = n.kind === "tag" ? color("--ink") : (n.color ?? color("--cat-other"));
         ctx!.fill();
         if (n.kind === "tag" || n === hover) {
           ctx!.font = `${n.kind === "tag" ? 600 : 400} 11px ${css.getPropertyValue("--font-geist-sans") || "sans-serif"}`;

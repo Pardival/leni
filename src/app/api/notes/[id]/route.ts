@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { CATEGORIES } from "@/db/schema";
+import { KINDS } from "@/db/schema";
 import { authorize, unauthorized } from "@/lib/auth";
 import { deleteNote, getNote, updateNote } from "@/lib/notes";
 
@@ -17,7 +17,8 @@ const Patch = z
     title: z.string().max(200),
     content: z.string().max(20000),
     summary: z.string().max(500),
-    category: z.enum(CATEGORIES),
+    category: z.string().min(1).max(40),
+    kind: z.enum(KINDS),
     tags: z.array(z.string().max(50)).max(20),
     actionItems: z.array(z.string().max(500)).max(50),
     placeName: z.string().max(200).nullable(),

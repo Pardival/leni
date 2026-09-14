@@ -2,13 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { CATEGORIES, type Category, type Note } from "@/db/schema";
+import { KINDS, type Kind, type Note } from "@/db/schema";
 import { useI18n } from "@/i18n/client";
 import { appleMapsUrl, formatDateTime } from "@/lib/format";
+import { useCategories } from "./CategoriesProvider";
 import { CategoryBadge } from "./CategoryBadge";
+import { KindIcon } from "./KindIcon";
+import { NoteContent } from "./NoteContent";
 
 export function NoteEditor({ note }: { note: Note }) {
   const { m, locale } = useI18n();
+  const { categories, label } = useCategories();
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [busy, startTransition] = useTransition();
@@ -18,7 +22,8 @@ export function NoteEditor({ note }: { note: Note }) {
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
   const [summary, setSummary] = useState(note.summary);
-  const [category, setCategory] = useState<Category>(note.category);
+  const [category, setCategory] = useState(note.category);
+  const [kind, setKind] = useState<Kind>(note.kind);
   const [tags, setTags] = useState(note.tags.join(", "));
   const [actions, setActions] = useState(note.actionItems.join("\n"));
   const [placeName, setPlaceName] = useState(note.placeName ?? "");
@@ -40,6 +45,7 @@ export function NoteEditor({ note }: { note: Note }) {
       content: content.trim(),
       summary: summary.trim(),
       category,
+      kind,
       tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
       actionItems: actions.split("\n").map((a) => a.trim()).filter(Boolean),
       placeName: placeName.trim() || null,
@@ -72,7 +78,9 @@ export function NoteEditor({ note }: { note: Note }) {
       {/* En-tête */}
       <header className="space-y-3">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-          <CategoryBadge category={note.category} />
+          <CategoryBadge slug={note.category} />
+          <span>·</span>
+          <KindIcon kind={note.kind} />
           <span>·</span>
           <time dateTime={note.capturedAt}>{formatDateTime(note.capturedAt, locale)}</time>
           <span>·</span>
@@ -114,10 +122,20 @@ export function NoteEditor({ note }: { note: Note }) {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="label">{m.note.category}</label>
-              <select className="input" value={category} onChange={(e) => setCategory(e.target.value as Category)}>
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {m.categories[c]}
+              <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
+                {categories.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {label(c.slug)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">{m.note.kind}</label>
+              <select className="input" value={kind} onChange={(e) => setKind(e.target.value as Kind)}>
+                {KINDS.map((k) => (
+                  <option key={k} value={k}>
+                    {m.kinds[k]}
                   </option>
                 ))}
               </select>
@@ -155,7 +173,7 @@ export function NoteEditor({ note }: { note: Note }) {
           {note.summary && note.summary !== note.content && (
             <p className="text-muted italic border-l-2 border-accent/50 pl-3">{note.summary}</p>
           )}
-          <p className="prose-note">{note.content}</p>
+          <NoteContent text={note.content} className="prose-note" />
 
           {note.actionItems.length > 0 && (
             <section>
@@ -256,7 +274,17 @@ export function NoteEditor({ note }: { note: Note }) {
             <button className="text-xs text-muted underline" onClick={() => setShowRaw((v) => !v)}>
               {m.note.rawText}
             </button>
-            {showRaw && <p className="mt-2 text-sm text-muted whitespace-pre-wrap font-mono">{note.rawText}</p>}
+            {showRaw && (
+              <div className="mt-2 space-y-3">
+                <p className="text-sm text-muted whitespace-pre-wrap font-mono">{note.rawText}</p>
+                {note.analysis && (
+                  <div>
+                    <h3 className="label">{m.categoriesPage.analysis}</h3>
+                    <p className="text-sm text-muted italic">{note.analysis}</p>
+                  </div>
+                )}
+              </div>
+            )}
           </section>
         </div>
       )}

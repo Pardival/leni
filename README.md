@@ -39,6 +39,23 @@ l'adresse LAN, le token et les étapes pour créer le Raccourci.
 Autres routes : `GET/POST /api/notes`, `GET/PATCH/DELETE /api/notes/:id`,
 `POST /api/notes/:id/reprocess`, `GET /api/audio/:name`.
 
+## Analyse d'une note
+
+Chaque note passe par le LLM (sortie structurée, `src/lib/ai/enrich.ts`) :
+
+- **Réécriture** : `content` est une version synthétique et lisible du texte
+  dicté (hésitations et répétitions retirées, liste à puces si plusieurs points).
+  Le texte brut reste dans `rawText`.
+- **Deux axes de classement** : un **thème** (domaine de vie, table
+  `categories`, dynamique) et un **type** fixe (`kind` : idée, tâche,
+  réflexion, journal, référence, note).
+- **Thèmes émergents** : le modèle nomme toujours le thème idéal de la note.
+  S'il n'existe pas, la proposition est mémorisée sur la note ; dès que
+  `THEME_EMERGENCE_THRESHOLD` notes (2 par défaut) partagent la même
+  proposition, un second appel LLM vérifie qu'aucun thème existant ne la
+  couvre, puis le thème est créé et les notes rattachées. La page `/categories`
+  permet de créer, écarter, renommer ou fusionner.
+
 ## Structure
 
 ```

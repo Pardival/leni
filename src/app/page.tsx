@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { CATEGORIES, type Category, type Note } from "@/db/schema";
+import { KINDS, type Kind, type Note } from "@/db/schema";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { FiltersBar } from "@/components/FiltersBar";
 import { NoteCard } from "@/components/NoteCard";
@@ -11,16 +11,17 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-type Search = { q?: string; category?: string; tag?: string; archived?: string };
+type Search = { q?: string; category?: string; kind?: string; tag?: string; archived?: string };
 
 export default async function HomePage({ searchParams }: { searchParams: Promise<Search> }) {
   const sp = await searchParams;
   const { m, locale } = await getI18n();
-  const category = CATEGORIES.includes(sp.category as Category) ? (sp.category as Category) : undefined;
+  const category = sp.category?.trim() || undefined;
+  const kind = KINDS.includes(sp.kind as Kind) ? (sp.kind as Kind) : undefined;
   const archived = sp.archived === "true";
 
   const [notes, all] = await Promise.all([
-    listNotes({ q: sp.q, category, tag: sp.tag, archived }),
+    listNotes({ q: sp.q, category, kind, tag: sp.tag, archived }),
     listNotes({ archived }),
   ]);
 

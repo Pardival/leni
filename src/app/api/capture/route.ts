@@ -19,10 +19,19 @@ import { createNote, processNote } from "@/lib/notes";
  * tourne ensuite en arrière-plan (`after`).
  */
 
-const Numberish = z.preprocess(
-  (v) => (v === "" || v == null ? null : typeof v === "string" ? Number(v) : v),
-  z.number().finite().nullable(),
-);
+/**
+ * Coordonnée envoyée par le Raccourci iOS. Raccourcis formate les nombres selon
+ * la langue du téléphone ("48,8566" en français) et peut ajouter des espaces :
+ * on nettoie, et toute valeur illisible devient null plutôt que de rejeter la note.
+ */
+const Numberish = z.preprocess((v) => {
+  if (v == null || typeof v === "boolean") return null;
+  if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  const cleaned = String(v).trim().replace(/\s/g, "").replace(",", ".").replace(/[^0-9.\-]/g, "");
+  if (!cleaned) return null;
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : null;
+}, z.number().nullable());
 
 const CaptureFields = z.object({
   text: z.string().trim().optional(),
@@ -35,6 +44,8 @@ const CaptureFields = z.object({
   language: z.string().trim().min(2).max(8).optional(),
   /** Si "true", la réponse attend la fin de l'analyse (utile pour le Raccourci). */
   wait: z.preprocess((v) => v === true || v === "true" || v === "1", z.boolean()).optional(),
+  /** "text" : réponse en texte lisible, idéale pour « Afficher une notification ». */
+  format: z.enum(["json", "text"]).optional(),
 });
 
 export async function POST(request: Request) {
@@ -96,11 +107,22 @@ export async function POST(request: Request) {
 
   if (fields.wait) {
     const processed = await processNote(note.id);
-    return Response.json(toPublic(processed ?? note), { status: 201 });
+    return respond(toPublic(processed ?? note), 201, fields.format);
   }
 
   after(() => processNote(note.id));
-  return Response.json(toPublic(note), { status: 202 });
+  return respond(toPublic(note), 202, fields.format);
+}
+
+function respond(payload: ReturnType<typeof toPublic>, status: number, format?: "json" | "text") {
+  if (format !== "text") return Response.json(payload, { status });
+  const line =
+    payload.status === "ready"
+      ? `✅ ${payload.title}\n${payload.category} · ${payload.tags.map((t) => `#${t}`).join(" ")}`
+      : payload.status === "error"
+        ? `⚠️ Note enregistrée, analyse échouée\n${payload.text.slice(0, 80)}`
+        : `📝 Note enregistrée\n${payload.text.slice(0, 80)}`;
+  return new Response(line, { status, headers: { "content-type": "text/plain; charset=utf-8" } });
 }
 
 async function saveAudio(file: File): Promise<string> {

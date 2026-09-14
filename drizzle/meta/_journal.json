@@ -8,6 +8,27 @@
       "when": 1789361637528,
       "tag": "0000_quiet_dreadnoughts",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789365434094,
+      "tag": "0001_categories",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789365733657,
+      "tag": "0002_kind",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1789366150571,
+      "tag": "0003_suggested_theme",
+      "breakpoints": true
     }
   ]
 }

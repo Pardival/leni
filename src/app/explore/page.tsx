@@ -1,14 +1,16 @@
 import Link from "next/link";
-import { CATEGORIES } from "@/db/schema";
 import { Constellation } from "@/components/Constellation";
+import { CategoryLabel } from "@/components/CategoryLabel";
 import { getI18n } from "@/i18n/server";
+import { listCategories } from "@/lib/categories";
 import { getStats } from "@/lib/notes";
 
 export const dynamic = "force-dynamic";
 
 export default async function ExplorePage() {
   const { m } = await getI18n();
-  const stats = await getStats();
+  const [stats, categories] = await Promise.all([getStats(), listCategories()]);
+  const colorOf = new Map(categories.map((c) => [c.slug, c.color]));
   const max = Math.max(1, ...Object.values(stats.byCategory));
 
   const days = stats.lastDays;
@@ -17,7 +19,7 @@ export default async function ExplorePage() {
   const graphNotes = stats.notes.slice(0, 120).map((n) => ({
     id: n.id,
     title: n.title || n.summary || n.content.slice(0, 40),
-    category: n.category,
+    color: colorOf.get(n.category) ?? "#8a8578",
     tags: n.tags,
   }));
 
@@ -36,22 +38,27 @@ export default async function ExplorePage() {
             <section className="card p-5">
               <h2 className="font-semibold mb-4">{m.explore.byCategory}</h2>
               <ul className="space-y-2.5">
-                {CATEGORIES.map((c) => (
-                  <li key={c}>
-                    <Link href={`/?category=${c}`} className="block group">
+                {categories.map((c) => (
+                  <li key={c.slug}>
+                    <Link href={`/?category=${c.slug}`} className="block group">
                       <div className="flex justify-between text-sm mb-1">
-                        <span className={`cat cat-${c}`}>{m.categories[c]}</span>
-                        <span className="text-muted">{stats.byCategory[c]}</span>
+                        <CategoryLabel slug={c.slug} />
+                        <span className="text-muted">{stats.byCategory[c.slug] ?? 0}</span>
                       </div>
                       <div className="h-2 rounded-full bg-surface-2 overflow-hidden">
                         <div
-                          className={`h-full rounded-full cat-${c} group-hover:opacity-80 transition`}
-                          style={{ width: `${(stats.byCategory[c] / max) * 100}%`, background: "var(--c)" }}
+                          className="h-full rounded-full group-hover:opacity-80 transition"
+                          style={{ width: `${((stats.byCategory[c.slug] ?? 0) / max) * 100}%`, background: c.color }}
                         />
                       </div>
                     </Link>
                   </li>
                 ))}
+                <li className="pt-1">
+                  <Link href="/categories" className="text-xs text-muted underline">
+                    {m.categoriesPage.manage}
+                  </Link>
+                </li>
               </ul>
             </section>
 

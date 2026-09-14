@@ -1,5 +1,8 @@
-import type { Category, Sentiment } from "@/db/schema";
+import type { Sentiment } from "@/db/schema";
 import type { Enrichment } from "./schema";
+
+/** Types de note que le mock sait reconnaître par mots-clés. */
+type Category = "idea" | "task" | "project" | "reflection" | "journal" | "reference" | "other";
 
 /**
  * Enrichissement sans LLM : heuristiques simples, déterministes et locales.
@@ -107,14 +110,21 @@ function pickSentiment(text: string): Sentiment {
   return "neutral";
 }
 
+function kindOf(c: Category): Enrichment["kind"] {
+  return c === "project" || c === "other" ? "note" : c;
+}
+
 export function mockEnrich(rawText: string): Enrichment {
   const content = cleanText(rawText);
   const language = detectLanguage(rawText);
   return {
+    analysis: "",
     title: makeTitle(content),
     content,
     summary: content.length > 140 ? `${content.slice(0, 137)}…` : content,
-    category: pickCategory(rawText),
+    kind: kindOf(pickCategory(rawText)),
+    category_slug: "other",
+    ideal_theme: { name: "", description: "" },
     tags: pickTags(rawText, language),
     language,
     action_items: [],

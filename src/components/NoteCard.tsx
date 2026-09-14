@@ -5,6 +5,7 @@ import type { Note } from "@/db/schema";
 import { useI18n } from "@/i18n/client";
 import { formatTime } from "@/lib/format";
 import { CategoryBadge } from "./CategoryBadge";
+import { KindIcon } from "./KindIcon";
 
 export function NoteCard({ note }: { note: Note }) {
   const { m, locale } = useI18n();
@@ -18,7 +19,9 @@ export function NoteCard({ note }: { note: Note }) {
       className={`card block p-4 sm:p-5 hover:border-faint transition ${processing ? "pulse" : ""}`}
     >
       <div className="flex items-center gap-3 text-xs text-muted">
-        <CategoryBadge category={note.category} />
+        <CategoryBadge slug={note.category} />
+        <span>·</span>
+        <KindIcon kind={note.kind} />
         <span>·</span>
         <time dateTime={note.capturedAt}>{formatTime(note.capturedAt, locale)}</time>
         {note.placeName && (

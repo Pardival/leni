@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CATEGORIES } from "@/db/schema";
+import { KINDS } from "@/db/schema";
 import { useI18n } from "@/i18n/client";
+import { useCategories } from "./CategoriesProvider";
+import { KIND_ICONS } from "./KindIcon";
 
 type Props = {
   tags: string[];
@@ -13,11 +15,13 @@ type Props = {
 
 export function FiltersBar({ tags, counts }: Props) {
   const { m } = useI18n();
+  const { categories, label } = useCategories();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
   const q = params.get("q") ?? "";
   const category = params.get("category") ?? "";
+  const kind = params.get("kind") ?? "";
   const tag = params.get("tag") ?? "";
   const archived = params.get("archived") === "true";
   const [search, setSearch] = useState(q);
@@ -35,7 +39,7 @@ export function FiltersBar({ tags, counts }: Props) {
     return () => clearTimeout(t);
   }, [search, q, params, pathname, router]);
 
-  const hasFilters = Boolean(q || category || tag || archived);
+  const hasFilters = Boolean(q || category || kind || tag || archived);
 
   return (
     <div className="space-y-3">
@@ -59,16 +63,31 @@ export function FiltersBar({ tags, counts }: Props) {
         <Link href={`${pathname}?${withParam(params, "category", "")}`} className="chip" data-active={!category}>
           {m.common.all}
         </Link>
-        {CATEGORIES.map((c) => (
+        {categories.map((c) => (
           <Link
-            key={c}
-            href={`${pathname}?${withParam(params, "category", c)}`}
-            className={`chip cat-${c}`}
-            data-active={category === c}
+            key={c.slug}
+            href={`${pathname}?${withParam(params, "category", c.slug)}`}
+            className="chip"
+            data-active={category === c.slug}
           >
-            <span className="w-2 h-2 rounded-full" style={{ background: "var(--c)" }} />
-            {m.categories[c]}
-            {counts[c] ? <span className="opacity-60">{counts[c]}</span> : null}
+            <span className="w-2 h-2 rounded-full" style={{ background: c.color }} />
+            {label(c.slug)}
+            {counts[c.slug] ? <span className="opacity-60">{counts[c.slug]}</span> : null}
+          </Link>
+        ))}
+        <Link href="/categories" className="chip opacity-70" title={m.categoriesPage.manage}>
+          ⚙︎
+        </Link>
+      </div>
+
+      <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
+        <Link href={`${pathname}?${withParam(params, "kind", "")}`} className="chip" data-active={!kind}>
+          {m.notes.allKinds}
+        </Link>
+        {KINDS.map((k) => (
+          <Link key={k} href={`${pathname}?${withParam(params, "kind", kind === k ? "" : k)}`} className="chip" data-active={kind === k}>
+            <span aria-hidden>{KIND_ICONS[k]}</span>
+            {m.kinds[k]}
           </Link>
         ))}
       </div>
