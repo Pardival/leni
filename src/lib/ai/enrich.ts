@@ -28,8 +28,8 @@ Rules:
 - "category": idea = a creative or product idea; task = something concrete to do; project = about an ongoing project (novel, app, work...); reflection = thinking about oneself or life; journal = what happened today, how the person feels; reference = a link, a book, a recipe, an address...; other = none of the above.
 - "tags": 3 to 6, lowercase, single words or short kebab-case, useful for retrieval. Include the project name if any.
 - "action_items": only concrete actions the person says they want to do. Imperative form. Empty array if none.
-- "place_name": only if the note explicitly mentions where the person is or a place the note is about. Else null.
-- "due_date": only if the note mentions a date or deadline. Resolve relative dates ("tomorrow", "next Monday") against captured_at. Format YYYY-MM-DD. Else null.
+- "place_name": the place explicitly mentioned in the note if any; otherwise, if coordinates are provided, the city or neighbourhood they correspond to (short name); else null.
+- "due_date": only if the note mentions a date or deadline. Resolve relative dates ("tomorrow", "next Saturday") against captured_at_human (it gives the weekday): "next <weekday>" is the first such weekday strictly after the capture day. Format YYYY-MM-DD. Else null.
 - Be conservative: when unsure, prefer "other", empty arrays and null.`;
 
 /**
@@ -40,8 +40,15 @@ export async function enrich(input: EnrichInput): Promise<EnrichResult> {
   const openai = getOpenAI();
   if (!openai) return { enrichment: mockEnrich(input.rawText), enrichedBy: "mock" };
 
+  const capturedAtHuman = new Intl.DateTimeFormat("en-GB", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
+    timeZone: process.env.TZ || Intl.DateTimeFormat().resolvedOptions().timeZone,
+  }).format(new Date(input.capturedAt));
+
   const userPayload = {
     captured_at: input.capturedAt,
+    // Le jour de la semaine est indispensable pour résoudre "samedi prochain".
+    captured_at_human: capturedAtHuman,
     language_hint: input.languageHint ?? null,
     coordinates:
       input.latitude != null && input.longitude != null
