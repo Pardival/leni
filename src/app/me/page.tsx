@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ResetDataButton } from "@/components/ResetDataButton";
 import { IconChevron, IconGlobe, IconPhone, IconTag } from "@/components/icons";
 import { getI18n } from "@/i18n/server";
 
@@ -36,6 +37,17 @@ export default async function MePage() {
           <LanguageSwitcher />
         </div>
       </div>
+
+      <section className="space-y-2">
+        <h2 className="label">{m.me.dangerTitle}</h2>
+        <div className="card p-4 flex flex-wrap items-center gap-3" style={{ borderColor: "color-mix(in oklab, var(--danger) 35%, var(--border))" }}>
+          <div className="flex-1 min-w-48">
+            <div className="text-[15px] font-semibold">{m.me.resetTitle}</div>
+            <div className="text-xs text-muted mt-0.5">{m.me.resetHint}</div>
+          </div>
+          <ResetDataButton />
+        </div>
+      </section>
     </div>
   );
 }

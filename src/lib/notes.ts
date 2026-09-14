@@ -1,6 +1,10 @@
 import { and, desc, eq, like, or, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { getDb } from "@/db";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { audioDirPath } from "./config";
+import { categories } from "@/db/schema";
 import { KINDS, notes, type Kind, type Note, type Source } from "@/db/schema";
 import { dedupCategory, enrich } from "./ai/enrich";
 import {
@@ -330,4 +334,24 @@ export async function getStreak(): Promise<number> {
 function localDayKey(iso: string): string {
   const d = new Date(iso);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/**
+ * Remise à zéro : toutes les notes, les fichiers audio et les thèmes créés
+ * par Leni sont supprimés. Les thèmes système sont conservés.
+ */
+export async function resetAllData(): Promise<{ notes: number; categories: number; audioFiles: number }> {
+  const db = await getDb();
+  const deletedNotes = (await db.delete(notes)).rowsAffected;
+  const deletedCategories = (await db.delete(categories).where(eq(categories.isSystem, false))).rowsAffected;
+  let audioFiles = 0;
+  try {
+    for (const f of await fs.readdir(audioDirPath())) {
+      await fs.unlink(path.join(audioDirPath(), f));
+      audioFiles++;
+    }
+  } catch {
+    /* dossier absent : rien à faire */
+  }
+  return { notes: deletedNotes, categories: deletedCategories, audioFiles };
 }
