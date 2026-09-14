@@ -95,7 +95,7 @@ data/             base SQLite + audio (non versionné)
 
 ## Feuille de route
 
-- [ ] Déploiement cloud (Vercel + Turso) pour capturer depuis la rue
+- [x] Déploiement cloud (Vercel + Turso) : voir `DEPLOY.md`
 - [ ] Vue « constellation » plus riche (3D, filtres temporels)
 - [ ] Rappels sur les actions à faire / échéances
 - [ ] Export (Markdown, JSON)

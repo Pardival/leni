@@ -1,9 +1,7 @@
 import { and, desc, eq, like, or, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { getDb } from "@/db";
-import fs from "node:fs/promises";
-import path from "node:path";
-import { audioDirPath } from "./config";
+import { deleteAllAudio, deleteAudio } from "./storage";
 import { categories } from "@/db/schema";
 import { KINDS, notes, type Kind, type Note, type Source } from "@/db/schema";
 import { dedupCategory, enrich } from "./ai/enrich";
@@ -259,7 +257,10 @@ export async function updateNote(id: string, patch: UpdateNoteInput): Promise<No
 
 export async function deleteNote(id: string): Promise<boolean> {
   const db = await getDb();
+  const note = await getNote(id);
+  if (!note) return false;
   const result = await db.delete(notes).where(eq(notes.id, id));
+  if (note.audioPath) await deleteAudio(note.audioPath);
   return result.rowsAffected > 0;
 }
 
@@ -344,14 +345,6 @@ export async function resetAllData(): Promise<{ notes: number; categories: numbe
   const db = await getDb();
   const deletedNotes = (await db.delete(notes)).rowsAffected;
   const deletedCategories = (await db.delete(categories).where(eq(categories.isSystem, false))).rowsAffected;
-  let audioFiles = 0;
-  try {
-    for (const f of await fs.readdir(audioDirPath())) {
-      await fs.unlink(path.join(audioDirPath(), f));
-      audioFiles++;
-    }
-  } catch {
-    /* dossier absent : rien à faire */
-  }
+  const audioFiles = await deleteAllAudio();
   return { notes: deletedNotes, categories: deletedCategories, audioFiles };
 }

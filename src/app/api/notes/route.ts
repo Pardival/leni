@@ -4,6 +4,8 @@ import { KINDS, type Kind } from "@/db/schema";
 import { authorize, unauthorized } from "@/lib/auth";
 import { createNote, listNotes, processNote } from "@/lib/notes";
 
+export const maxDuration = 60;
+
 /** GET /api/notes?q=&category=&tag=&archived= */
 export async function GET(request: NextRequest) {
   if (!(await authorize(request))) return unauthorized();

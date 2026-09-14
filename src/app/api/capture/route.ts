@@ -1,11 +1,9 @@
 import { after } from "next/server";
-import fs from "node:fs/promises";
-import path from "node:path";
 import { z } from "zod";
 import { SOURCES } from "@/db/schema";
 import { TranscriptionUnavailableError, transcribe } from "@/lib/ai/transcribe";
 import { authorize, unauthorized } from "@/lib/auth";
-import { audioDirPath } from "@/lib/config";
+import { saveAudio } from "@/lib/storage";
 import { createNote, processNote } from "@/lib/notes";
 
 /**
@@ -47,6 +45,9 @@ const CaptureFields = z.object({
   /** "text" : réponse en texte lisible, idéale pour « Afficher une notification ». */
   format: z.enum(["json", "text"]).optional(),
 });
+
+/** Analyse LLM + Whisper : laisser le temps sur les plateformes serverless. */
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   if (!(await authorize(request))) return unauthorized();
@@ -123,27 +124,6 @@ function respond(payload: ReturnType<typeof toPublic>, status: number, format?: 
         ? `⚠️ Note enregistrée, analyse échouée\n${payload.text.slice(0, 80)}`
         : `📝 Note enregistrée\n${payload.text.slice(0, 80)}`;
   return new Response(line, { status, headers: { "content-type": "text/plain; charset=utf-8" } });
-}
-
-async function saveAudio(file: File): Promise<string> {
-  await fs.mkdir(audioDirPath(), { recursive: true });
-  const ext = guessExtension(file);
-  const name = `${new Date().toISOString().replace(/[:.]/g, "-")}-${Math.random().toString(36).slice(2, 8)}${ext}`;
-  const full = path.join(audioDirPath(), name);
-  await fs.writeFile(full, Buffer.from(await file.arrayBuffer()));
-  return name;
-}
-
-function guessExtension(file: File): string {
-  const fromName = path.extname(file.name || "");
-  if (fromName) return fromName.toLowerCase();
-  const type = file.type.toLowerCase();
-  if (type.includes("mp4") || type.includes("m4a") || type.includes("aac")) return ".m4a";
-  if (type.includes("webm")) return ".webm";
-  if (type.includes("wav")) return ".wav";
-  if (type.includes("ogg")) return ".ogg";
-  if (type.includes("mpeg") || type.includes("mp3")) return ".mp3";
-  return ".bin";
 }
 
 /** Réponse compacte, lisible dans une notification iOS. */
