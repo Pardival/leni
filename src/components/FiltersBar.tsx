@@ -50,6 +50,9 @@ export function FiltersBar({ tags }: { tags: string[] }) {
       </div>
 
       <div className="flex gap-1.5 overflow-x-auto no-scrollbar -mx-5 px-5 sm:mx-0 sm:px-0">
+        <Link href="/ask" className="chip text-accent border-accent/40">
+          ✦ {m.notes.askLeni}
+        </Link>
         {category && (
           <Link href={`${pathname}?${withParam(params, "category", "")}`} className="chip" data-active="true">
             {label(category)} ×

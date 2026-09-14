@@ -7,6 +7,7 @@ export const config = {
     apiKey: process.env.OPENAI_API_KEY?.trim() || null,
     model: process.env.OPENAI_MODEL?.trim() || "gpt-4o-mini",
     transcribeModel: process.env.OPENAI_TRANSCRIBE_MODEL?.trim() || "whisper-1",
+    embeddingModel: process.env.OPENAI_EMBEDDING_MODEL?.trim() || "text-embedding-3-small",
   },
   captureToken: process.env.CAPTURE_TOKEN?.trim() || null,
   userName: process.env.LENI_USER_NAME?.trim() || null,

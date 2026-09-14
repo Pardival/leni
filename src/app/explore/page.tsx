@@ -28,6 +28,9 @@ export default async function ExplorePage() {
       <div>
         <h1 className="text-[1.75rem] font-bold leading-tight">{m.explore.title}</h1>
         <p className="text-muted mt-1">{m.explore.intro}</p>
+        <Link href="/ask" className="btn btn-dark mt-3">
+          ✦ {m.notes.askLeni}
+        </Link>
       </div>
 
       {stats.total === 0 ? (

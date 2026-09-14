@@ -12,6 +12,9 @@
   naissent des propositions du LLM (`suggested_theme`) une fois le seuil
   atteint, voir `emergeThemes` dans `src/lib/notes.ts`. Le modèle par défaut
   est dans `.env.local` (`OPENAI_MODEL`), gpt-4.1-mini au 14 sept. 2026.
+- V2 : trois destins par note (réfléchir / apprendre / ranger) dérivés du
+  type ; socle sémantique dans `src/lib/embeddings.ts`, `ai/ask.ts`,
+  `ai/deepen.ts`. Après un déploiement, lancer `POST /api/embeddings/rebuild`.
 - Schéma DB : `src/db/schema.ts`. Après modification :
   `pnpm drizzle-kit generate` (les migrations s'appliquent au démarrage).
 - Design : voir README « Design ». Icônes = SVG inline dans

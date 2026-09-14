@@ -36,6 +36,13 @@
       "when": 1789367242759,
       "tag": "0004_done_actions",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1789371754803,
+      "tag": "0005_embeddings_insights",
+      "breakpoints": true
     }
   ]
 }

@@ -56,6 +56,23 @@ Chaque note passe par le LLM (sortie structurée, `src/lib/ai/enrich.ts`) :
   couvre, puis le thème est créé et les notes rattachées. La page `/categories`
   permet de créer, écarter, renommer ou fusionner.
 
+## Socle sémantique (V2.1)
+
+- **Empreintes** : chaque note reçoit un vecteur (`text-embedding-3-small`,
+  512 dimensions) stocké en JSON dans `embeddings` ; la similarité cosinus est
+  calculée en JS (`src/lib/embeddings.ts`), suffisant à l'échelle personnelle.
+  Recalcul automatique après analyse ou édition ; rattrapage via
+  `POST /api/embeddings/rebuild`.
+- **Notes liées** : sur chaque note, les cinq plus proches par le sens.
+- **Demande à Leni** (`/ask`) : recherche par sens puis réponse du modèle
+  ancrée dans les notes trouvées, avec sources numérotées et refus honnête.
+- **Approfondir** (`insights`) : lectures ajoutées sous une note à la demande,
+  par lentille (ce que ça dit, autre perspective, pièges de pensée, et
+  maintenant ?, question libre). Jamais imposé, jamais modifié dans le texte.
+
+Vision complète de la V2 (réfléchir / apprendre / ranger) :
+<https://claude.ai/code/artifact/da55b84a-831a-4df1-b373-e6721041b5f6>
+
 ## Design
 
 Direction « Blocs vifs, version produit » (maquettes dans `design/directions/`,
@@ -96,6 +113,7 @@ data/             base SQLite + audio (non versionné)
 ## Feuille de route
 
 - [x] Déploiement cloud (Vercel + Turso) : voir `DEPLOY.md`
-- [ ] Vue « constellation » plus riche (3D, filtres temporels)
+- [ ] V2.2 Apprendre : sources (PDF, liens), documents de synthèse, concepts, révision FSRS
+- [ ] V2.3 Voir : carte des concepts, tableau d'apprentissage, fil des réflexions
 - [ ] Rappels sur les actions à faire / échéances
 - [ ] Export (Markdown, JSON)

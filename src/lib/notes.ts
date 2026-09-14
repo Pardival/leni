@@ -3,8 +3,9 @@ import { randomUUID } from "node:crypto";
 import { getDb } from "@/db";
 import { config } from "./config";
 import { dayKey } from "./format";
+import { deleteNoteEmbedding, upsertNoteEmbedding } from "./embeddings";
 import { deleteAllAudio, deleteAudio } from "./storage";
-import { categories } from "@/db/schema";
+import { categories, embeddings, insights } from "@/db/schema";
 import { KINDS, notes, type Kind, type Note, type Source } from "@/db/schema";
 import { dedupCategory, enrich } from "./ai/enrich";
 import {
@@ -156,6 +157,9 @@ export async function processNote(id: string): Promise<Note | null> {
     if (finalCategory !== decision.category) {
       await db.update(notes).set({ category: finalCategory, suggestedTheme: null, suggestedThemeDescription: null }).where(eq(notes.id, id));
     }
+    // Empreinte de sens (notes liées, Demande à Leni). Non bloquant pour la note.
+    const enriched = await getNote(id);
+    if (enriched) await upsertNoteEmbedding(enriched).catch((e) => console.error("[leni] embedding failed:", e));
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error(`[leni] enrichment failed for ${id}:`, message);
@@ -254,7 +258,11 @@ export async function updateNote(id: string, patch: UpdateNoteInput): Promise<No
     .update(notes)
     .set({ ...clean, updatedAt: nowIso() })
     .where(eq(notes.id, id));
-  return getNote(id);
+  const updated = await getNote(id);
+  if (updated && (clean.title !== undefined || clean.content !== undefined || clean.tags !== undefined || clean.summary !== undefined)) {
+    upsertNoteEmbedding(updated).catch((e) => console.error("[leni] embedding failed:", e));
+  }
+  return updated;
 }
 
 export async function deleteNote(id: string): Promise<boolean> {
@@ -262,6 +270,8 @@ export async function deleteNote(id: string): Promise<boolean> {
   const note = await getNote(id);
   if (!note) return false;
   const result = await db.delete(notes).where(eq(notes.id, id));
+  await deleteNoteEmbedding(id);
+  await db.delete(insights).where(eq(insights.noteId, id));
   if (note.audioPath) await deleteAudio(note.audioPath);
   return result.rowsAffected > 0;
 }
@@ -345,6 +355,8 @@ function localDayKey(iso: string): string {
 export async function resetAllData(): Promise<{ notes: number; categories: number; audioFiles: number }> {
   const db = await getDb();
   const deletedNotes = (await db.delete(notes)).rowsAffected;
+  await db.delete(embeddings);
+  await db.delete(insights);
   const deletedCategories = (await db.delete(categories).where(eq(categories.isSystem, false))).rowsAffected;
   const audioFiles = await deleteAllAudio();
   return { notes: deletedNotes, categories: deletedCategories, audioFiles };

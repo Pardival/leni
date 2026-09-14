@@ -130,3 +130,35 @@ export const notes = sqliteTable(
 
 export type Note = typeof notes.$inferSelect;
 export type NewNote = typeof notes.$inferInsert;
+
+/** Empreinte de sens d'une note (vecteur JSON ; la similarité est calculée en JS). */
+export const embeddings = sqliteTable("embeddings", {
+  noteId: text("note_id").primaryKey(),
+  model: text("model").notNull(),
+  vector: text("vector", { mode: "json" }).$type<number[]>().notNull(),
+  /** Hash du texte vectorisé, pour ne recalculer que si la note a changé. */
+  contentHash: text("content_hash").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+export type EmbeddingRow = typeof embeddings.$inferSelect;
+
+/** Lentilles d'approfondissement d'une réflexion. */
+export const LENSES = ["meaning", "perspective", "traps", "next", "question"] as const;
+export type Lens = (typeof LENSES)[number];
+
+/** Lecture ajoutée par Leni sous une note, à la demande. */
+export const insights = sqliteTable(
+  "insights",
+  {
+    id: text("id").primaryKey(),
+    noteId: text("note_id").notNull(),
+    lens: text("lens", { enum: LENSES }).notNull(),
+    /** Question libre de l'utilisateur quand lens = "question". */
+    question: text("question"),
+    content: text("content").notNull(),
+    model: text("model").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => [index("insights_note_idx").on(t.noteId)],
+);
+export type Insight = typeof insights.$inferSelect;
