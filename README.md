@@ -35,6 +35,8 @@ Claude ; les choix produit sont documentés dans ce fichier, `DEPLOY.md` et
 - **Apprendre** : synthèse structurée d'une source, concepts, cartes générées
   et vérifiées, sessions de révision (quiz, question ouverte, exercice,
   « explique-moi »), planification FSRS, maîtrise par concept.
+- **En direct** : une note capturée depuis le téléphone (ou une autre appli)
+  apparaît dans l'interface ouverte sans la recharger, analyse comprise.
 - Bilingue fr/en, mode sombre, PWA, série de jours, réinitialisation.
 
 ## Stack
@@ -70,6 +72,18 @@ l'adresse LAN, le token et les étapes pour créer le Raccourci.
 
 Autres routes : `GET/POST /api/notes`, `GET/PATCH/DELETE /api/notes/:id`,
 `POST /api/notes/:id/reprocess`, `GET /api/audio/:name`.
+
+## Rafraîchissement en direct
+
+L'interface n'a pas de connexion permanente (Vercel est serverless) : le
+composant `LiveRefresh`, monté dans le layout, interroge `GET /api/pulse`
+toutes les 3 s tant que l'onglet est visible, et immédiatement au retour au
+premier plan. La réponse est une empreinte courte (nombre et dernière
+modification des notes, des sources et des thèmes, une seule requête SQL) ;
+dès qu'elle change, `router.refresh()` rejoue le rendu serveur en gardant
+l'état client. Cela couvre la capture depuis le Raccourci, la fin d'une
+analyse, une source prête ou un thème émergent. Onglet caché : aucun appel ;
+erreur réseau : délai doublé jusqu'à 30 s ; session expirée : arrêt.
 
 ## Analyse d'une note
 

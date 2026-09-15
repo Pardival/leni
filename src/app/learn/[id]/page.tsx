@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AutoRefresh } from "@/components/AutoRefresh";
 import { CourseActions } from "@/components/CourseActions";
 import { IconBack } from "@/components/icons";
 import { format } from "@/i18n";
@@ -19,7 +18,6 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
 
   return (
     <article className="-mx-5 sm:mx-0 -mt-4 space-y-8">
-      <AutoRefresh active={processing} intervalMs={4000} />
       <header className="tint rounded-b-[28px] sm:rounded-[28px] px-5 sm:px-8 pt-3 pb-6 space-y-5" style={{ "--c": "#5b2fd1" } as React.CSSProperties}>
         <div className="flex items-center justify-between">
           <Link href="/learn" className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/25 flex items-center justify-center" aria-label={m.common.back}>
