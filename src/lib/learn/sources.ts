@@ -144,16 +144,35 @@ export async function sourceStats(sourceId: string): Promise<SourceStats> {
 
 export type SourceSummary = Omit<LearnSource, "text"> & SourceStats;
 
+/** Toutes les sources avec leurs statistiques, en trois requêtes quel que soit leur nombre. */
 export async function listSources(): Promise<SourceSummary[]> {
   const db = await getDb();
-  const rows = await db.select().from(sources).orderBy(desc(sources.createdAt));
-  const out: SourceSummary[] = [];
-  for (const r of rows) {
-    const { text: _t, ...rest } = r;
-    void _t;
-    out.push({ ...rest, ...(await sourceStats(r.id)) });
-  }
-  return out;
+  const [rows, allCards, reviewCounts] = await Promise.all([
+    db
+      .select({
+        id: sources.id, title: sources.title, kind: sources.kind, originalName: sources.originalName, url: sources.url,
+        charCount: sources.charCount, pageCount: sources.pageCount, language: sources.language, status: sources.status,
+        error: sources.error, createdAt: sources.createdAt, updatedAt: sources.updatedAt,
+      })
+      .from(sources)
+      .orderBy(desc(sources.createdAt)),
+    db
+      .select({ sourceId: cards.sourceId, verified: cards.verified, due: cards.due, stability: cards.stability, difficulty: cards.difficulty, reps: cards.reps, lapses: cards.lapses, state: cards.state, lastReview: cards.lastReview, scheduledDays: cards.scheduledDays, learningSteps: cards.learningSteps })
+      .from(cards)
+      .where(eq(cards.flagged, false)),
+    db.select({ sourceId: reviews.sourceId, n: sql<number>`count(*)` }).from(reviews).groupBy(reviews.sourceId),
+  ]);
+  const nowD = new Date();
+  const rv = new Map(reviewCounts.map((r) => [r.sourceId, Number(r.n)]));
+  const by = new Map<string, typeof allCards>();
+  for (const c of allCards) by.set(c.sourceId, [...(by.get(c.sourceId) ?? []), c]);
+  return rows.map((r) => {
+    const cs = by.get(r.id) ?? [];
+    const verified = cs.filter((c) => c.verified);
+    const due = verified.filter((c) => new Date(c.due) <= nowD).length;
+    const mastery = verified.length ? Math.round((verified.reduce((s, c) => s + retrievability(c as Card, nowD), 0) / verified.length) * 100) : 0;
+    return { ...r, cards: cs.length, verified: verified.length, due, mastery, reviews: rv.get(r.id) ?? 0 };
+  });
 }
 
 /** Cartes à réviser maintenant : dues d'abord, puis nouvelles, formats mélangés. */

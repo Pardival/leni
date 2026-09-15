@@ -45,12 +45,13 @@ export function ReviewSession({ sourceId, title }: { sourceId: string; title: st
 
   useEffect(() => {
     if (done && total > 0) {
+      router.refresh();
       fetch(`/api/sources/${sourceId}`)
         .then((r) => r.json())
         .then((d: { stats: { mastery: number } }) => setMastery(d.stats.mastery))
         .catch(() => undefined);
     }
-  }, [done, total, sourceId]);
+  }, [done, total, sourceId, router]);
 
   async function check() {
     if (!card || checking) return;

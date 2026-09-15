@@ -4,20 +4,29 @@ import { CATEGORY_PALETTE, categories, notes, SYSTEM_CATEGORIES, type CategoryRo
 
 const MAX_CATEGORIES = 40;
 
-/** Crée les catégories système si elles manquent (idempotent). */
+/** Crée les catégories système si elles manquent (idempotent, 1 à 2 requêtes). */
 export async function seedCategories(db: Awaited<ReturnType<typeof getDb>>) {
+  const existing = new Set((await db.select({ slug: categories.slug }).from(categories)).map((r) => r.slug));
+  const missing = SYSTEM_CATEGORIES.filter((c) => !existing.has(c.slug));
+  if (missing.length === 0) return;
   const now = new Date().toISOString();
-  for (const c of SYSTEM_CATEGORIES) {
-    await db
-      .insert(categories)
-      .values({ ...c, createdAt: now })
-      .onConflictDoNothing();
-  }
+  await db.insert(categories).values(missing.map((c) => ({ ...c, createdAt: now }))).onConflictDoNothing();
+  invalidateCategoryCache();
+}
+
+/* Cache par instance : les thèmes changent rarement et sont lus à chaque rendu. */
+let cache: { rows: CategoryRow[]; at: number } | null = null;
+const CACHE_TTL_MS = 60_000;
+export function invalidateCategoryCache() {
+  cache = null;
 }
 
 export async function listCategories(): Promise<CategoryRow[]> {
+  if (cache && Date.now() - cache.at < CACHE_TTL_MS) return cache.rows;
   const db = await getDb();
-  return db.select().from(categories).orderBy(asc(categories.createdAt));
+  const rows = await db.select().from(categories).orderBy(asc(categories.createdAt));
+  cache = { rows, at: Date.now() };
+  return rows;
 }
 
 export async function getCategory(slug: string): Promise<CategoryRow | null> {
@@ -96,6 +105,7 @@ export async function createCategory(input: { name: string; description: string 
     createdAt: new Date().toISOString(),
   };
   await db.insert(categories).values(row);
+  invalidateCategoryCache();
   return row;
 }
 
@@ -109,6 +119,7 @@ export async function updateCategory(
   if (patch.description != null) clean.description = patch.description.trim().slice(0, 200);
   if (patch.color && /^#[0-9a-f]{6}$/i.test(patch.color)) clean.color = patch.color;
   if (Object.keys(clean).length) await db.update(categories).set(clean).where(eq(categories.slug, slug));
+  invalidateCategoryCache();
   return getCategory(slug);
 }
 
@@ -120,6 +131,7 @@ export async function mergeCategory(from: string, into: string): Promise<boolean
   if (!src || !dst) return false;
   await db.update(notes).set({ category: into }).where(eq(notes.category, from));
   if (!src.isSystem) await db.delete(categories).where(eq(categories.slug, from));
+  invalidateCategoryCache();
   return true;
 }
 

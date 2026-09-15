@@ -129,6 +129,7 @@ export function CaptureScreen({ canRecordAudio }: { canRecordAudio: boolean }) {
       const res = await fetch("/api/capture", { method: "POST", body: form });
       if (!res.ok) throw new Error(await res.text());
       const note = (await res.json()) as { id: string };
+      router.refresh();
       router.push(`/notes/${note.id}`);
     } catch (err) {
       setError(`${m.capture.error} ${String(err)}`);
@@ -150,6 +151,7 @@ export function CaptureScreen({ canRecordAudio }: { canRecordAudio: boolean }) {
       });
       if (!res.ok) throw new Error(await res.text());
       const note = (await res.json()) as { id: string };
+      router.refresh();
       router.push(`/notes/${note.id}`);
     } catch (err) {
       setError(`${m.capture.error} ${String(err)}`);

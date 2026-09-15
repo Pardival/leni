@@ -18,9 +18,13 @@ vercel login
 
 ## 1. Base de données Turso
 
-Le plus simple : sur <https://app.turso.tech>, crée une base nommée `leni`,
-puis récupère dans sa page **l'URL** (`libsql://leni-<org>.turso.io`) et
-**un token** (bouton « Create token »).
+Le plus simple : sur <https://app.turso.tech>, crée une base nommée `leni`
+dans la région la plus proche de toi (depuis Brisbane : **Tokyo,
+aws-ap-northeast-1** ; Turso n'a pas de région australienne), puis récupère
+dans sa page **l'URL** (`libsql://leni-<org>.turso.io`) et **un token**
+(bouton « Create token »). La région des fonctions Vercel (`vercel.json`,
+`regions`) doit être la même : `hnd1` pour Tokyo, `dub1` pour l'Irlande.
+Une base loin des fonctions multiplie le temps de chaque page.
 
 Ou avec la ligne de commande, à installer toi-même (le script vient de
 Turso) :

@@ -32,13 +32,13 @@ export function Nav() {
           </Link>
           <nav className="tabbar ml-4" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
             {items.map((it) => (
-              <Link key={it.href} href={it.href} className="tab px-4" data-active={it.active}>
+              <Link key={it.href} href={it.href} prefetch={true} className="tab px-4" data-active={it.active}>
                 <it.Icon size={18} />
                 {it.label}
               </Link>
             ))}
           </nav>
-          <Link href="/capture" className="btn btn-primary ml-auto">
+          <Link href="/capture" prefetch={true} className="btn btn-primary ml-auto">
             <IconMic size={18} />
             {m.nav.capture}
           </Link>
@@ -49,7 +49,7 @@ export function Nav() {
       <nav className="sm:hidden fixed bottom-0 inset-x-0 z-30 px-4 pb-safe pointer-events-none">
         <div className="tabbar pointer-events-auto grid-cols-4">
           {items.map((it) => (
-            <Link key={it.href} href={it.href} className="tab text-[11px]" data-active={it.active}>
+            <Link key={it.href} href={it.href} prefetch={true} className="tab text-[11px]" data-active={it.active}>
               <it.Icon size={17} />
               {it.label}
             </Link>

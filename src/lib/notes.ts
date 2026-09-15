@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { getDb } from "@/db";
 import { config } from "./config";
 import { dayKey } from "./format";
-import { deleteNoteEmbedding, upsertNoteEmbedding } from "./embeddings";
+import { deleteNoteEmbedding, invalidateEmbeddingCache, upsertNoteEmbedding } from "./embeddings";
 import { deleteAllAudio, deleteAudio } from "./storage";
 import { categories, embeddings, insights } from "@/db/schema";
 import { KINDS, notes, type Kind, type Note, type Source } from "@/db/schema";
@@ -11,6 +11,7 @@ import { dedupCategory, enrich } from "./ai/enrich";
 import {
   findSimilarCategory,
   getCategory,
+  invalidateCategoryCache,
   listCategories,
   listSuggestedThemes,
   normalizeName,
@@ -315,8 +316,8 @@ function parseIsoOrNow(value: string | null | undefined): string {
 export type OpenAction = { noteId: string; noteTitle: string; category: string; dueDate: string | null; text: string };
 
 /** Actions non cochées, toutes notes confondues, les plus récentes d'abord. */
-export async function listOpenActions(limit = 5): Promise<OpenAction[]> {
-  const all = await listNotes({ limit: 500 });
+export async function listOpenActions(limit = 5, notesList?: Note[]): Promise<OpenAction[]> {
+  const all = notesList ?? (await listNotes({ limit: 500 }));
   const out: OpenAction[] = [];
   for (const n of all) {
     const done = new Set(n.doneActionItems);
@@ -330,10 +331,9 @@ export async function listOpenActions(limit = 5): Promise<OpenAction[]> {
 }
 
 /** Nombre de jours consécutifs (aujourd'hui inclus, ou hier) avec au moins une note. */
-export async function getStreak(): Promise<number> {
-  const db = await getDb();
-  const rows = await db.select({ capturedAt: notes.capturedAt }).from(notes);
-  const days = new Set(rows.map((r) => localDayKey(r.capturedAt)));
+export async function getStreak(capturedDates?: string[]): Promise<number> {
+  const dates = capturedDates ?? (await (await getDb()).select({ capturedAt: notes.capturedAt }).from(notes)).map((r) => r.capturedAt);
+  const days = new Set(dates.map((d) => localDayKey(d)));
   let cursor = new Date();
   if (!days.has(localDayKey(cursor.toISOString()))) cursor = new Date(cursor.getTime() - 86_400_000);
   let streak = 0;
@@ -358,6 +358,8 @@ export async function resetAllData(): Promise<{ notes: number; categories: numbe
   await db.delete(embeddings);
   await db.delete(insights);
   const deletedCategories = (await db.delete(categories).where(eq(categories.isSystem, false))).rowsAffected;
+  invalidateCategoryCache();
+  invalidateEmbeddingCache();
   const audioFiles = await deleteAllAudio();
   return { notes: deletedNotes, categories: deletedCategories, audioFiles };
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import HomeSkeleton from "./loading";
 import { KINDS, type Kind, type Note } from "@/db/schema";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { CourseCard } from "@/components/CourseCard";
@@ -23,18 +24,56 @@ type Search = { q?: string; category?: string; kind?: string; tag?: string; arch
 export default async function HomePage({ searchParams }: { searchParams: Promise<Search> }) {
   const sp = await searchParams;
   const { m, locale } = await getI18n();
+  const hour = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: config.timeZone }).format(new Date()));
+  const greetingKey = hour < 12 ? "greetingMorning" : hour < 18 ? "greetingDay" : "greetingEvening";
+  const greeting = config.userName ? format(m.notes[greetingKey], { name: config.userName }) : m.notes.title;
+  const today = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", timeZone: config.timeZone }).format(new Date());
+  const filtering = Boolean(sp.q || sp.category || sp.kind || sp.tag || sp.archived === "true");
+
+  return (
+    <div className="space-y-7">
+      <header className="flex items-end justify-between gap-4 pt-2">
+        <div>
+          <p className="text-sm text-muted first-letter:uppercase">{today}</p>
+          <h1 className="up text-[1.75rem] font-bold leading-tight">{greeting}</h1>
+        </div>
+        <Suspense>
+          <StreakChip />
+        </Suspense>
+      </header>
+      <Suspense fallback={<HomeSkeleton />}>
+        <HomeContent sp={sp} filtering={filtering} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function StreakChip() {
+  const { m } = await getI18n();
+  const streak = await getStreak();
+  if (streak <= 0) return null;
+  return (
+    <span className="chip text-ink gap-1.5" title={m.notes.streak}>
+      <IconFlame size={16} className="text-accent" />
+      {format(m.notes.streak, { count: streak })}
+    </span>
+  );
+}
+
+async function HomeContent({ sp, filtering }: { sp: Search; filtering: boolean }) {
+  const { m, locale } = await getI18n();
   const category = sp.category?.trim() || undefined;
   const kind = KINDS.includes(sp.kind as Kind) ? (sp.kind as Kind) : undefined;
   const archived = sp.archived === "true";
-  const filtering = Boolean(sp.q || category || kind || sp.tag || archived);
 
-  const [notes, all, openActions, streak, courses] = await Promise.all([
-    listNotes({ q: sp.q, category, kind, tag: sp.tag, archived }),
-    listNotes({ archived: false }),
-    listOpenActions(5),
-    getStreak(),
-    listSources(),
-  ]);
+  // Une seule lecture des notes actives ; filtres, actions et série en dérivent.
+  const [all, courses] = await Promise.all([listNotes({ archived: false }), listSources()]);
+  const notes = filtering
+    ? archived
+      ? await listNotes({ q: sp.q, category, kind, tag: sp.tag, archived })
+      : filterNotes(all, { q: sp.q, category, kind, tag: sp.tag })
+    : all;
+  const openActions = await listOpenActions(5, all);
   const dueTotal = courses.reduce((n, c) => n + c.due, 0);
 
   const counts: Record<string, number> = {};
@@ -47,29 +86,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const groups = groupByDay(notes);
   const processing = notes.some((n) => n.status === "processing");
 
-  const hour = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: config.timeZone }).format(new Date()));
-  const greetingKey = hour < 12 ? "greetingMorning" : hour < 18 ? "greetingDay" : "greetingEvening";
-  const greeting = config.userName ? format(m.notes[greetingKey], { name: config.userName }) : m.notes.title;
-  const today = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", timeZone: config.timeZone }).format(new Date());
-
   return (
-    <div className="space-y-7">
+    <>
       <AutoRefresh active={processing} />
-
-      {/* En-tête */}
-      <header className="flex items-end justify-between gap-4 pt-2">
-        <div>
-          <p className="text-sm text-muted first-letter:uppercase">{today}</p>
-          <h1 className="up text-[1.75rem] font-bold leading-tight">{greeting}</h1>
-        </div>
-        {streak > 0 && (
-          <span className="chip text-ink gap-1.5" title={m.notes.streak}>
-            <IconFlame size={16} className="text-accent" />
-            {format(m.notes.streak, { count: streak })}
-          </span>
-        )}
-      </header>
-
       {!filtering && (
         <>
           <CaptureHero />
@@ -147,7 +166,18 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           </div>
         )}
       </section>
-    </div>
+    </>
+  );
+}
+
+function filterNotes(list: Note[], f: { q?: string; category?: string; kind?: Kind; tag?: string }): Note[] {
+  const q = f.q?.trim().toLowerCase();
+  return list.filter(
+    (n) =>
+      (!f.category || n.category === f.category) &&
+      (!f.kind || n.kind === f.kind) &&
+      (!f.tag || n.tags.includes(f.tag)) &&
+      (!q || [n.title, n.content, n.rawText, n.summary, n.placeName ?? "", n.tags.join(" ")].some((t) => t.toLowerCase().includes(q))),
   );
 }
 

@@ -40,6 +40,7 @@ export function AddSource() {
       if (res.status === 422) throw new Error(m.learn.tooShort);
       if (!res.ok) throw new Error(m.learn.error);
       const src = (await res.json()) as { id: string };
+      router.refresh();
       router.push(`/learn/${src.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : m.learn.error);

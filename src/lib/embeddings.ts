@@ -26,21 +26,36 @@ export async function upsertNoteEmbedding(note: Note): Promise<void> {
       target: embeddings.noteId,
       set: { model: config.openai.embeddingModel, vector, contentHash: hash, updatedAt: new Date().toISOString() },
     });
+  invalidateEmbeddingCache();
 }
 
 export async function deleteNoteEmbedding(noteId: string): Promise<void> {
   const db = await getDb();
   await db.delete(embeddings).where(eq(embeddings.noteId, noteId));
+  invalidateEmbeddingCache();
+}
+
+/* Cache par instance des vecteurs : c'est la lecture la plus lourde (512 nombres par note). */
+let vecCache: { rows: { noteId: string; vector: number[] }[]; at: number } | null = null;
+const VEC_TTL_MS = 5 * 60_000;
+export function invalidateEmbeddingCache() {
+  vecCache = null;
+}
+async function allVectors() {
+  if (vecCache && Date.now() - vecCache.at < VEC_TTL_MS) return vecCache.rows;
+  const db = await getDb();
+  const rows = await db.select({ noteId: embeddings.noteId, vector: embeddings.vector }).from(embeddings);
+  vecCache = { rows, at: Date.now() };
+  return rows;
 }
 
 export type Scored = { note: Note; score: number };
 
 /** Notes proches d'une note donnée, par sens (hors archivées). */
 export async function relatedNotes(noteId: string, k = 5, minScore = 0.35): Promise<Scored[]> {
-  const db = await getDb();
-  const me = await db.select().from(embeddings).where(eq(embeddings.noteId, noteId)).limit(1);
-  if (!me[0]) return [];
-  return rank(me[0].vector, k, minScore, noteId);
+  const me = (await allVectors()).find((r) => r.noteId === noteId);
+  if (!me) return [];
+  return rank(me.vector, k, minScore, noteId);
 }
 
 /** Notes les plus proches d'une question libre. */
@@ -52,7 +67,7 @@ export async function searchNotes(query: string, k = 8, minScore = 0.25): Promis
 
 async function rank(vector: number[], k: number, minScore: number, excludeId?: string): Promise<Scored[]> {
   const db = await getDb();
-  const rows = await db.select({ noteId: embeddings.noteId, vector: embeddings.vector }).from(embeddings);
+  const rows = await allVectors();
   const scored = rows
     .filter((r) => r.noteId !== excludeId)
     .map((r) => ({ noteId: r.noteId, score: cosine(vector, r.vector) }))
@@ -96,5 +111,6 @@ export async function rebuildEmbeddings(): Promise<{ total: number; updated: num
       updated++;
     }
   }
+  invalidateEmbeddingCache();
   return { total: all.length, updated };
 }

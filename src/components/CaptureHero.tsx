@@ -10,6 +10,7 @@ export function CaptureHero() {
   return (
     <Link
       href="/capture"
+      prefetch={true}
       className="up flex items-center gap-4 p-5 rounded-[22px] text-white"
       style={{ "--i": 1, background: "linear-gradient(135deg, #ff7a55 0%, #f4532d 55%, #e0401d 100%)", boxShadow: "var(--shadow-accent)" } as React.CSSProperties}
     >

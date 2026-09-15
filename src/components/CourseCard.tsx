@@ -10,7 +10,7 @@ export function CourseCard({ course, compact = false }: { course: SourceSummary;
   const { m } = useI18n();
   const processing = course.status !== "ready" && course.status !== "error";
   return (
-    <Link href={`/learn/${course.id}`} className={`card flex items-center gap-3 px-4 py-3.5 hover:border-faint transition ${processing ? "pulse" : ""}`}>
+    <Link href={`/learn/${course.id}`} prefetch={true} className={`card flex items-center gap-3 px-4 py-3.5 hover:border-faint transition ${processing ? "pulse" : ""}`}>
       <span className="tint w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ "--c": "#5b2fd1" } as React.CSSProperties}>
         <IconBook size={18} />
       </span>

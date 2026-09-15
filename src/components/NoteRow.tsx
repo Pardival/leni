@@ -18,7 +18,7 @@ export function NoteRow({ note }: { note: Note }) {
   const openActions = note.actionItems.filter((a) => !note.doneActionItems.includes(a)).length;
 
   return (
-    <Link href={`/notes/${note.id}`} className={`card flex items-center gap-3 px-4 py-3.5 hover:border-faint transition ${processing ? "pulse" : ""}`}>
+    <Link href={`/notes/${note.id}`} prefetch={true} className={`card flex items-center gap-3 px-4 py-3.5 hover:border-faint transition ${processing ? "pulse" : ""}`}>
       <span className="tint w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ "--c": color } as CSSProperties}>
         <Icon size={18} />
       </span>
