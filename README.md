@@ -1,9 +1,38 @@
-# Leni — capture vocale de notes, rangement par IA
+# Leni
 
-Leni est un outil personnel pour capturer une idée en quelques secondes (dictée
-depuis l'iPhone via un Raccourci, ou depuis le web) et la retrouver ensuite :
-un LLM nettoie le texte, lui donne un titre, une catégorie, des tags, des
-actions à faire, un lieu, une échéance.
+**Dicte, Leni range.** Un second cerveau personnel : capture vocale d'une
+pensée en une pression sur le bouton Action de l'iPhone, rangement par IA,
+notes reliées par le sens, questions à ses propres notes, et apprentissage
+à partir de PDF, liens ou textes avec révision par répétition espacée.
+
+*Leni is a personal second brain: voice capture from the iPhone Action
+button, AI tidying (rewrite, theme, type, tags, actions), semantic links and
+"ask your notes", plus a learning path (PDF/link → synthesis → concepts →
+spaced-repetition review with spoken answers). French and English UI.
+Everything below is in French; the code and comments are French too.*
+
+Open source sous licence MIT. Projet perso, construit en vibecoding avec
+Claude ; les choix produit sont documentés dans ce fichier, `DEPLOY.md` et
+`CLAUDE.md`.
+
+## Fonctionnalités
+
+- **Capturer** : Raccourci iOS (dictée → `POST /api/capture`), écran de
+  capture web (dictée navigateur, audio Whisper, clavier). Réponse immédiate,
+  analyse en arrière-plan.
+- **Ranger** : réécriture propre du texte dicté, titre, résumé, tags, actions
+  à faire, lieu, échéance ; **thème** de vie dynamique (créé quand un sujet
+  revient, avec contrôle des doublons) et **type** fixe (idée, tâche,
+  réflexion, journal, référence, note).
+- **Retrouver** : accueil avec actions ouvertes cochables, tuiles de thèmes,
+  recherche et filtres ; notes liées par le sens ; « Demande à Leni » répond à
+  partir des notes avec sources.
+- **Réfléchir** : « Approfondir » ajoute une lecture sous une réflexion, par
+  lentille, à la demande seulement.
+- **Apprendre** : synthèse structurée d'une source, concepts, cartes générées
+  et vérifiées, sessions de révision (quiz, question ouverte, exercice,
+  « explique-moi »), planification FSRS, maîtrise par concept.
+- Bilingue fr/en, mode sombre, PWA, série de jours, réinitialisation.
 
 ## Stack
 
@@ -19,7 +48,7 @@ actions à faire, un lieu, une échéance.
 ## Démarrer
 
 ```bash
-cp .env.example .env.local   # puis remplir OPENAI_API_KEY et CAPTURE_TOKEN
+cp .env.example .env.local   # puis remplir OPENAI_API_KEY et CAPTURE_TOKEN (openssl rand -hex 24)
 pnpm install
 pnpm dev --hostname 0.0.0.0  # accessible depuis l'iPhone sur le même Wi‑Fi
 ```
@@ -136,3 +165,9 @@ data/             base SQLite + audio (non versionné)
 - [ ] V2.3 Voir : carte des concepts, tableau d'apprentissage, fil des réflexions
 - [ ] Rappels sur les actions à faire / échéances
 - [ ] Export (Markdown, JSON)
+
+## Licence
+
+MIT, voir `LICENSE`. Aucune donnée personnelle ni secret n'est versionné :
+`.env.local`, la base SQLite, les audios et la configuration Vercel locale
+sont ignorés par git.
