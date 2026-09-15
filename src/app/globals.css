@@ -92,7 +92,14 @@
 }
 
 /* ── Base ───────────────────────────────────────────────────────────────── */
-html { background: var(--bg); }
+html {
+  background: var(--bg);
+  /* Panoramique oui, pincement et double-tap non : on se comporte comme une
+     application installée, pas comme une page web (voir aussi `NoZoom`). */
+  touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 body {
   background: var(--bg);
   color: var(--ink);

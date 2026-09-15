@@ -149,7 +149,10 @@ canevas publié sur claude.ai). Tokens dans `src/app/globals.css` :
   couleur du thème via `color-mix`, aucune couleur par thème à maintenir ;
 - titres Bricolage Grotesque, texte Plus Jakarta Sans ; rayons 22/18/16/999 ;
 - motion : `.up` (cascade à l'ouverture, `--i` pour le délai), `.breathe`,
-  `.wave-bar`, `.ring` ; tout est coupé par `prefers-reduced-motion`.
+  `.wave-bar`, `.ring` ; tout est coupé par `prefers-reduced-motion` ;
+- gestes : sur écran tactile, pas de zoom par pincement ni de double-tap
+  (viewport verrouillé, `touch-action`, et `NoZoom` pour Safari iOS) ; sur
+  ordinateur le zoom du navigateur reste entier.
 
 Écrans : accueil (capture, « À reprendre », tuiles de thèmes, notes du jour),
 note (bandeau teinté, cases à cocher persistées dans `doneActionItems`),

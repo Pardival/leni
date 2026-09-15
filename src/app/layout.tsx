@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import { CategoriesProvider } from "@/components/CategoriesProvider";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { Nav } from "@/components/Nav";
+import { NoZoom } from "@/components/NoZoom";
 import { I18nProvider } from "@/i18n/client";
 import { getI18n } from "@/i18n/server";
 import { listCategories } from "@/lib/categories";
@@ -26,6 +27,10 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  // Application, pas page web : pas de zoom par pincement ni de zoom
+  // automatique à la mise au point d'un champ (voir aussi `NoZoom`).
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -37,6 +42,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <CategoriesProvider categories={categories}>
             <Nav />
             <LiveRefresh />
+            <NoZoom />
             <main className="flex-1 w-full max-w-3xl mx-auto px-5 sm:px-6 pt-4 pb-32 sm:pb-16">{children}</main>
           </CategoriesProvider>
         </I18nProvider>
