@@ -11,6 +11,9 @@ button, AI tidying (rewrite, theme, type, tags, actions), semantic links and
 spaced-repetition review with spoken answers). French and English UI.
 Everything below is in French; the code and comments are French too.*
 
+Code source : <https://github.com/Pardival/leni>. Chaque push sur `main`
+déploie automatiquement la production Vercel.
+
 Open source sous licence MIT. Projet perso, construit en vibecoding avec
 Claude ; les choix produit sont documentés dans ce fichier, `DEPLOY.md` et
 `CLAUDE.md`.
