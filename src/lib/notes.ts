@@ -156,7 +156,10 @@ export async function processNote(id: string): Promise<Note | null> {
     // Après l'enregistrement : la proposition compte désormais cette note.
     const finalCategory = await emergeThemes(decision);
     if (finalCategory !== decision.category) {
-      await db.update(notes).set({ category: finalCategory, suggestedTheme: null, suggestedThemeDescription: null }).where(eq(notes.id, id));
+      await db
+        .update(notes)
+        .set({ category: finalCategory, suggestedTheme: null, suggestedThemeDescription: null, updatedAt: nowIso() })
+        .where(eq(notes.id, id));
     }
     // Empreinte de sens (notes liées, Demande à Leni). Non bloquant pour la note.
     const enriched = await getNote(id);

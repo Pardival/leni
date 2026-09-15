@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import { CategoriesProvider } from "@/components/CategoriesProvider";
+import { LiveRefresh } from "@/components/LiveRefresh";
 import { Nav } from "@/components/Nav";
 import { I18nProvider } from "@/i18n/client";
 import { getI18n } from "@/i18n/server";
@@ -35,6 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <I18nProvider locale={locale}>
           <CategoriesProvider categories={categories}>
             <Nav />
+            <LiveRefresh />
             <main className="flex-1 w-full max-w-3xl mx-auto px-5 sm:px-6 pt-4 pb-32 sm:pb-16">{children}</main>
           </CategoriesProvider>
         </I18nProvider>

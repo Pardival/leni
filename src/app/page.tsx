@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Suspense } from "react";
 import HomeSkeleton from "./loading";
 import { KINDS, type Kind, type Note } from "@/db/schema";
-import { AutoRefresh } from "@/components/AutoRefresh";
 import { CourseCard } from "@/components/CourseCard";
 import { CaptureHero } from "@/components/CaptureHero";
 import { FiltersBar } from "@/components/FiltersBar";
@@ -84,11 +83,9 @@ async function HomeContent({ sp, filtering }: { sp: Search; filtering: boolean }
   }
   const topTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([t]) => t);
   const groups = groupByDay(notes);
-  const processing = notes.some((n) => n.status === "processing");
 
   return (
     <>
-      <AutoRefresh active={processing} />
       {!filtering && (
         <>
           <CaptureHero />
